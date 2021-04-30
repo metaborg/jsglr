@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.*;
+import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
@@ -243,10 +244,8 @@ public class IncrementalParser
         // is the leftmost descendant of the to-be-reused lookahead, the reduce action can be removed.
         // This is to avoid multipleStates = true,
         // and should only happen in case multipleStates == false to avoid messing up other parse branches.
-        if(parseState.newParseNodesAreReusable() && filteredActions.size() == 1
-            && nullReduceMatchesLookahead((IReduce) filteredActions.get(0), lookaheadNode)) {
+        if(parseState.newParseNodesAreReusable() && nullReduceMatchesLookahead(stack, filteredActions, lookaheadNode))
             return Collections.singletonList(gotoShift);
-        }
 
         filteredActions.add(gotoShift);
         return filteredActions;
@@ -257,14 +256,41 @@ public class IncrementalParser
     // then the reduce of arity 0 is not necessary.
     // This method returns whether this is the case.
     // Note that "descendant" includes the root, so the parameter `lookaheadNode` may already be the null-yield node.
-    private boolean nullReduceMatchesLookahead(IReduce reduceAction, IncrementalParseNode lookaheadNode) {
-        if(reduceAction.arity() != 0)
+    private boolean nullReduceMatchesLookahead(StackNode stack, List<IAction> reduceActions,
+        IncrementalParseNode lookaheadNode) {
+        if(reduceActions.isEmpty())
             return false;
+
+        int[] reduceActionProductions = new int[reduceActions.size()];
+
+        int i = 0;
+        for(IAction action : reduceActions) {
+            IReduce reduceAction = (IReduce) action;
+
+            // If any reduce action in the list does NOT have arity 0, we cannot apply this optimization, so abort.
+            if(reduceAction.arity() != 0)
+                return false;
+
+            reduceActionProductions[i++] = reduceAction.production().id();
+        }
 
         while(true) {
             IncrementalParseForest[] children = lookaheadNode.getFirstDerivation().parseForests;
-            if(children.length == 0)
-                return reduceAction.production().id() == lookaheadNode.production().id();
+
+            // When we arrive at the leftmost descendant in the lookahead node, check if it is a null-yield node
+            if(children.length == 0 && lookaheadNode.width() == 0) {
+                IState state = stack.state();
+                int lookaheadNodeGotoId = state.getGotoId(lookaheadNode.production().id());
+
+                // If so, the production of this node must match any of the 0-arity reduce action productions
+                for(int reduceActionProduction : reduceActionProductions) {
+                    if(state.getGotoId(reduceActionProduction) == lookaheadNodeGotoId)
+                        return true;
+                }
+
+                return false;
+            }
+
             IncrementalParseForest child = children[0];
             if(child.isTerminal())
                 return false;

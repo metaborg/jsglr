@@ -124,6 +124,7 @@ public class LayoutConstraintEvaluator {
                         return Optional.empty();
                     } else {
                         pos = layoutSensitiveParseNode.getLeftPosition();
+                        break;
                     }
                 } else {
                     return Optional.empty();
@@ -137,6 +138,7 @@ public class LayoutConstraintEvaluator {
                         return Optional.empty();
                     } else {
                         pos = layoutSensitiveParseNode.getRightPosition();
+                        break;
                     }
                 } else {
                     return Optional.empty();

@@ -22,5 +22,12 @@ public class StrategoTest extends BaseTestWithParseTableFromTermWithJSGLR1 {
         return testSuccessByAstString(sampleProgram, expectedAST.toString());
     }
 
+    @TestFactory public Stream<DynamicTest> testIndentPadding() throws ParseError, IOException {
+        String sampleProgram = getFileAsString("Stratego/test112.str");
+        IStrategoTerm expectedAST = getFileAsAST("Stratego/test112.aterm");
+
+        return testSuccessByAstString(sampleProgram, expectedAST.toString());
+    }
+
 
 }

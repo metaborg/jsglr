@@ -1,0 +1,28 @@
+module recovery-reconstruction
+
+context-free start-symbols
+  Start
+
+context-free syntax
+  Start = AB? Foo?
+
+  Foo.Foo1 = "f" "oo"
+  Foo.Foo2 = "fo" "o"
+
+  AB.AB = A B
+
+  A.A = "a"
+  B.B = "b"
+
+  "a".INSERTION = {recover}
+  "b".INSERTION = {recover}
+
+  LAYOUT.WATER = WATER
+
+lexical syntax
+  LAYOUT = [\ ]
+  WATER = [a-z]+ {recover}
+
+context-free restrictions
+  LAYOUT? -/- [\ ]
+  WATER -/- [a-z]

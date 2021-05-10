@@ -9,12 +9,13 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithRecoverySdf3ParseTables;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.terms.ParseError;
 
 public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTables {
 
     public RecoveryBacktrackingTest() {
-        super("recovery.sdf3", false, false);
+        super("recovery.sdf3", false, false, false);
     }
 
     @TestFactory public Stream<DynamicTest> testSuccessSingleLine() throws ParseError {
@@ -169,7 +170,7 @@ public class RecoveryBacktrackingTest extends BaseTestWithRecoverySdf3ParseTable
     }
 
     @TestFactory public Stream<DynamicTest> test4Recovery3MultiLines() throws ParseError {
-        return testRecovery("" + newlines(3) + "yyyy", false, null);
+        return testRecoveryFails("" + newlines(3) + "yyyy", ParseFailureCause.Type.UnexpectedEOF);
     }
 
     @TestFactory public Stream<DynamicTest> test4Recovery3MultiLinesTraced() throws ParseError {

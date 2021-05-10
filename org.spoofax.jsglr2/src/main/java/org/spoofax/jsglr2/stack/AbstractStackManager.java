@@ -71,9 +71,11 @@ public abstract class AbstractStackManager
             StackNode lastStackNode = path.head();
 
             for(StackLink<ParseForest, StackNode> linkOut : stackLinksOut(lastStackNode)) {
-                StackPath<ParseForest, StackNode> extendedPath = new NonEmptyStackPath<>(linkOut, path);
+                if(!linkOut.isRejected()) {
+                    StackPath<ParseForest, StackNode> extendedPath = new NonEmptyStackPath<>(linkOut, path);
 
-                findAllPathsOfLength(extendedPath, length - 1, paths);
+                    findAllPathsOfLength(extendedPath, length - 1, paths);
+                }
             }
         }
     }

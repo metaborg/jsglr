@@ -64,10 +64,6 @@ public class IncrementalParseNode extends IncrementalParseForest
         return production;
     }
 
-    @Override public String descriptor() {
-        return production.descriptor();
-    }
-
     @Override public void addDerivation(IncrementalDerivation derivation) {
         if(otherDerivations == null)
             otherDerivations = new ArrayList<>();
@@ -107,7 +103,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(production == null)
             printer.println("p null {");
         else
-            printer.println("p" + production.id() + " : " + production.sort() + " { (s" + state.id() + ")");
+            printer.println("p" + production.id() + " : " + production.lhs() + " { (s" + state.id() + ")");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

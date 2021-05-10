@@ -27,10 +27,14 @@ public class ParseNodeVisitorTest {
         mockParseNodeVisiting.visit(request, parseForest, visitor);
     }
 
-    private Iterable<Visit> trace(MockParseForest parseForest, String yield) {
+    private Iterable<Visit> trace(MockParseForest parseForest, String yield, boolean visitAmbiguousDerivations) {
         List<Visit> visits = new ArrayList<>();
 
         visit(parseForest, yield, new ParseNodeVisitor<MockParseForest, MockDerivation, MockParseNode>() {
+            @Override public boolean visitAmbiguousDerivations() {
+                return visitAmbiguousDerivations;
+            }
+
             @Override public boolean preVisit(MockParseNode parseNode, Position startPosition) {
                 visits.add(new PreVisit(parseNode.label, startPosition));
 
@@ -107,8 +111,14 @@ public class ParseNodeVisitorTest {
         }
     }
 
+    void testByTrace(MockParseForest parseForest, String yield, Iterable<Visit> expectedVisits,
+        boolean visitAmbiguousDerivations) {
+        assertIterableEquals(expectedVisits, trace(parseForest, yield, visitAmbiguousDerivations),
+            "Visits don't match");
+    }
+
     void testByTrace(MockParseForest parseForest, String yield, Iterable<Visit> expectedVisits) {
-        assertIterableEquals(expectedVisits, trace(parseForest, yield), "Visits don't match");
+        testByTrace(parseForest, yield, expectedVisits, true);
     }
 
     @Test void testSingle() {
@@ -173,7 +183,16 @@ public class ParseNodeVisitorTest {
             new PostVisit("x1", 0, 1, 1, 1, 1, 2),
             new PostVisit("+", 0, 1, 1, 1, 1, 2)
         //@formatter:on
-        ));
+        ), true);
+
+        testByTrace(parseForest, "x", Arrays.asList(
+        //@formatter:off
+            new  PreVisit("+", 0, 1, 1),
+            new  PreVisit("x1", 0, 1, 1),
+            new PostVisit("x1", 0, 1, 1, 1, 1, 2),
+            new PostVisit("+", 0, 1, 1, 1, 1, 2)
+        //@formatter:on
+        ), false);
     }
 
     @Test void testAmbiguousExpression() {

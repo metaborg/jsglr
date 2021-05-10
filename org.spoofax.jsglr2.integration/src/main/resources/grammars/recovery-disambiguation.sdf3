@@ -11,8 +11,8 @@ context-free syntax
   A.A = "a"
   B.B = "b"
 
-  A.INSERTION = {recover}
-  B.INSERTION = {recover}
+  "a".INSERTION = {recover}
+  "b".INSERTION = {recover}
 
   LAYOUT.WATER = WATER
 

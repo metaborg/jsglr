@@ -7,21 +7,26 @@ public class ParseException extends Exception {
 
     private static final long serialVersionUID = 5070826083429554841L;
 
-    public ParseException(ParseFailureCause.Type failureType, Position position, Integer character) {
-        super(message(failureType, position, character));
+    public final ParseFailureCause cause;
+
+    public ParseException(ParseFailureCause cause, Integer character) {
+        super(message(cause, character));
+
+        this.cause = cause;
     }
 
-    private static String message(ParseFailureCause.Type failureType, Position position, Integer character) {
+    private static String message(ParseFailureCause cause, Integer character) {
         StringBuilder message = new StringBuilder();
 
-        message.append(failureType.message);
+        message.append(cause.causeMessage());
 
-        if(position != null)
-            message.append(
-                " at offset " + position.offset + "(line " + position.line + ", column " + position.column + ")");
+        if(cause.position != null)
+            message.append(" at offset " + cause.position.offset + " (line " + cause.position.line + ", column "
+                + cause.position.column + ")");
 
         if(character != null)
-            message.append(" at character " + CharacterClassFactory.intToString(character));
+            message.append(
+                String.format(" at character %s (U+%04X)", CharacterClassFactory.intToString(character), character));
 
         return message.toString();
     }

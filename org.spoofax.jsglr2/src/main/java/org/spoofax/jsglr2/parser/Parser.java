@@ -80,28 +80,37 @@ public class Parser
 
         boolean recover;
 
-        do {
-            parseLoop(parseState);
+        try {
+            do {
+                parseLoop(parseState);
 
-            if(parseState.acceptingStack == null)
-                recover = failureHandler.onFailure(parseState);
-            else
-                recover = false;
-        } while(recover);
+                if(parseState.acceptingStack == null)
+                    recover = failureHandler.onFailure(parseState);
+                else
+                    recover = false;
+            } while(recover);
 
-        if(parseState.acceptingStack != null) {
-            ParseForest parseForest =
-                stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
+            if(parseState.acceptingStack != null) {
+                ParseForest parseForest =
+                    stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
 
-            ParseForest parseForestWithStartSymbol = request.startSymbol != null
-                ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
+                ParseForest parseForestWithStartSymbol = request.startSymbol != null
+                    ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
 
-            if(parseForest != null && parseForestWithStartSymbol == null)
-                return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
-            else
-                return complete(parseState, parseForestWithStartSymbol);
-        } else
-            return failure(parseState, failureHandler.failureCause(parseState));
+                if(parseForest != null && parseForestWithStartSymbol == null)
+                    return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
+                else
+                    return complete(parseState, parseForestWithStartSymbol);
+            } else
+                return failure(parseState, failureHandler.failureCause(parseState));
+        } catch(ParseException e) {
+            return failure(parseState, e.cause);
+        }
+    }
+
+    @Override public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
+        parseForestManager.visit(success.parseState.request, (ParseForest) success.parseResult,
+            (ParseNodeVisitor<ParseForest, Derivation, ParseNode>) visitor);
     }
 
     protected ParseState getParseState(JSGLR2Request request, String previousInput, ParseForest previousResult) {
@@ -114,9 +123,8 @@ public class Parser
 
         parseForestManager.visit(parseState.request, parseForest, cycleDetector);
 
-        if(cycleDetector.cycleDetected) {
-            return failure(new ParseFailure<>(parseState,
-                new ParseFailureCause(ParseFailureCause.Type.Cycle, messages.get(0).region.position())));
+        if(cycleDetector.cycleDetected()) {
+            return failure(new ParseFailure<>(parseState, cycleDetector.failureCause));
         } else {
             reporter.report(parseState, parseForest, messages);
 
@@ -147,7 +155,7 @@ public class Parser
         return failure;
     }
 
-    protected void parseLoop(ParseState parseState) {
+    protected void parseLoop(ParseState parseState) throws ParseException {
         while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
             parseCharacter(parseState);
             parseState.inputStack.consumed();
@@ -157,7 +165,7 @@ public class Parser
         }
     }
 
-    protected void parseCharacter(ParseState parseState) {
+    protected void parseCharacter(ParseState parseState) throws ParseException {
         parseState.nextParseRound(observing);
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);

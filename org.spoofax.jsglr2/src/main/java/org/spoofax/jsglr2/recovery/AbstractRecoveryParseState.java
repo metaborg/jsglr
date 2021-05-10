@@ -14,8 +14,10 @@ import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
@@ -38,8 +40,13 @@ public abstract class AbstractRecoveryParseState
         super(request, inputStack, activeStacks, forActorStacks);
     }
 
-    @Override public void nextParseRound(ParserObserving observing) {
+    @Override public void nextParseRound(ParserObserving observing) throws ParseException {
         super.nextParseRound(observing);
+        if(isRecovering() && recoveryJob.timeout())
+            throw new ParseException(
+                new ParseFailureCause(ParseFailureCause.Type.RecoveryTimeout, inputStack.safePosition()),
+                inputStack.safeCharacter());
+
         int currentOffset = inputStack.offset();
 
         // Record backtrack choice points per line.
@@ -64,7 +71,7 @@ public abstract class AbstractRecoveryParseState
     }
 
     @Override public void startRecovery(JSGLR2Request request, int offset) {
-        recoveryJob = new RecoveryJob<>(offset, request.recoveryIterationsQuota);
+        recoveryJob = new RecoveryJob<>(offset, request.recoveryIterationsQuota, request.recoveryTimeout);
         mode = ParsingMode.Recovery;
     }
 

@@ -257,10 +257,9 @@ public class LayoutFilter {
   }
   
   private AbstractParseNode getSubtree(int i, AbstractParseNode[] kids) {
-    i = i - 1;
     int elems = (kids.length + 1) / 2;
     if (i < 0 || i >= elems)
-      throw new IllegalStateException("index out of bounds: " + "index is " + i + " but only " + elems + " children available");
+      throw new IllegalStateException("index out of bounds: " + "index is " + i + " but only " + elems + " children available (index is 0-based)");
     return kids[2 * i];
   }
   

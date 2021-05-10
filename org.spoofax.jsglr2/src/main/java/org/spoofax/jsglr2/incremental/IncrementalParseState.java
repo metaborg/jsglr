@@ -6,6 +6,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParseStateFactory;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -49,7 +50,7 @@ public class IncrementalParseState<StackNode extends IStackNode>
         };
     }
 
-    @Override public void nextParseRound(ParserObserving observing) {
+    @Override public void nextParseRound(ParserObserving observing) throws ParseException {
         super.nextParseRound(observing);
 
         setMultipleStates(activeStacks.isMultiple());

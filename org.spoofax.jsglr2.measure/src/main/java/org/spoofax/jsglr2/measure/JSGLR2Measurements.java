@@ -13,16 +13,19 @@ import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class JSGLR2Measurements {
 
-    private static String REPORT_PATH = System.getProperty("reportPath", "~/jsglr2measurements");
-
-    public static void main(String[] args) throws ParseTableReadException, IOException {
-        if(REPORT_PATH.startsWith("~" + File.separator)) {
-            REPORT_PATH = System.getProperty("user.home") + REPORT_PATH.substring(1);
+    static final String REPORT_PATH;
+    static {
+        String reportPath = System.getProperty("reportPath", "~/jsglr2measurements");
+        if(reportPath.startsWith("~" + File.separator)) {
+            reportPath = System.getProperty("user.home") + reportPath.substring(1);
         }
+        REPORT_PATH = reportPath;
 
         new File(REPORT_PATH).mkdirs();
+    }
 
-        Config config = getConfig(args);
+    public static void main(String[] args) throws ParseTableReadException, IOException {
+        Config<String, StringInput> config = getConfig(args);
 
         for(TestSetWithParseTable<String, StringInput> testSet : config.testSets) {
             if(config.prefix)
@@ -33,35 +36,14 @@ public class JSGLR2Measurements {
         }
     }
 
-    private static Config getConfig(String[] arg) {
-        if(arg.length == 0)
-            return new Config(TestSet.all, true);
-        else if(arg.length == 1) {
-            String[] args = arg[0].split(" ");
-
-            return new Config(Collections.singleton(TestSet.fromArgsWithParseTable(TestSet.parseArgs(args))), false);
-        }
+    private static Config<String, StringInput> getConfig(String[] args) {
+        if(args.length == 0)
+            return new Config<>(TestSet.all, true);
+        else if(args.length == 1)
+            return new Config<>(
+                Collections.singleton(TestSet.fromArgsWithParseTable(TestSet.parseArgs(args[0].split(" ")))), false);
 
         throw new IllegalStateException("invalid arguments");
-    }
-
-    public static class Config {
-
-        final Iterable<TestSetWithParseTable<String, StringInput>> testSets;
-        final boolean prefix;
-
-        Config(Iterable<TestSetWithParseTable<String, StringInput>> testSets, boolean prefix) {
-            this.testSets = testSets;
-            this.prefix = prefix;
-        }
-
-        public String prefix(TestSet testSet) {
-            if(prefix)
-                return JSGLR2Measurements.REPORT_PATH + "/" + testSet.name + "_";
-            else
-                return JSGLR2Measurements.REPORT_PATH + "/";
-        }
-
     }
 
 }

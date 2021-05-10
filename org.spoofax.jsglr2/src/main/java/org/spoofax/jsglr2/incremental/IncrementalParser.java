@@ -25,6 +25,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.parseforest.Disambiguator;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseReporterFactory;
@@ -113,7 +114,9 @@ public class IncrementalParser
             observing.notify(observer -> {
                 IncrementalParseForest node = parseState.inputStack.getNode();
                 observer.breakDown(parseState.inputStack,
-                    node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : NON_DETERMINISTIC);
+                    node instanceof IParseNode && ((IParseNode<?, ?>) node).production() == null ? TEMPORARY
+                        : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE
+                            : IRREUSABLE);
             });
             parseState.inputStack.breakDown();
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));

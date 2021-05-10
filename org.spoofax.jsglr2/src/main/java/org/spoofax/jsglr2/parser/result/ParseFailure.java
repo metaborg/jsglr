@@ -33,9 +33,7 @@ public class ParseFailure<ParseForest extends IParseForest> extends ParseResult<
     public ParseException exception() {
         Position position = failureCause.position;
 
-        return new ParseException(failureCause.type, failureCause.position,
-            position != null && position.offset <= parseState.inputStack.inputString().length() - 1
-                ? parseState.inputStack.inputString().codePointAt(position.offset) : null);
+        return new ParseException(failureCause, position != null ? parseState.inputStack.safeCharacter() : null);
     }
 
 }

@@ -1,0 +1,20 @@
+/**
+ * Test for $[ string quotation syntax. ]
+ * As this tests for indentation using the regular string syntax,
+ * this test is ironically very badly formatted.
+ */
+module test112
+imports libstratego-lib
+
+strategies
+  
+  show(|s) = where(write-to-string; debug(!s)); say(id)
+
+  main =
+    x := $[ 1
+            2 ]
+
+  main =
+    x := $[ 1
+  	          	2 ]
+

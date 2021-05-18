@@ -65,6 +65,15 @@ public class LinkedIncrementalInputStack extends AbstractInputStack implements I
         head = head.next;
     }
 
+    @Override public boolean lookaheadIsUnchanged() {
+        if(head.next == null)
+            return true;
+        IncrementalParseForest node = head.next.node;
+        if(node.isTerminal())
+            return true;
+        return ((IncrementalParseNode) node).production() != null;
+    }
+
     private static class StackTuple {
         final IncrementalParseForest node;
         final StackTuple next;

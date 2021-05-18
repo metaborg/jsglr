@@ -174,6 +174,11 @@ public class IncrementalParser
             if(lookaheadNode.isReusable() && !hasShiftActions)
                 return originalActions;
 
+            // If we are already planning to reuse a parse node, and the lookahead is not changed,
+            // then we don't have to break down this parse node.
+            if(!parseState.forShifter.isEmpty() && parseState.inputStack.lookaheadIsUnchanged())
+                return Collections.emptyList();
+
             observing.notify(observer -> observer.breakDown(parseState.inputStack,
                 lookaheadNode.production() == null ? TEMPORARY : lookaheadNode.isReusable()
                     ? lookaheadNode.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE));

@@ -104,6 +104,10 @@ public class ProcessUpdates
                     updates.removeFirst();
                 return getParseNodeFromString(inserted);
             }
+            // The character right before the change should be marked as changed as well
+            if(currentOffset + currentForest.width() == deletedStartOffset) {
+                return newParseNodeFromChildren(currentForest);
+            }
             // Else: delete all characters within deletion range
             if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
                 if(currentOffset == deletedEndOffset - currentForest.width())

@@ -240,6 +240,10 @@ public abstract class AbstractIncrementalInputStackTest {
     }
 
     private static void assertPopLookahead(IncrementalParseForest forest, IIncrementalInputStack stack) {
+        boolean expected =
+            forest == null || forest.isTerminal() || ((IncrementalParseNode) forest).production() != null;
+        assertEquals(expected, stack.lookaheadIsUnchanged(),
+            () -> "Node " + forest + " was expected to be " + (expected ? "" : "NOT ") + "changed");
         stack.next();
         assertSame(forest, stack.getNode());
     }

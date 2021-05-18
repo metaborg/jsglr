@@ -4,11 +4,7 @@ import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNod
 
 import java.util.Stack;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
+import org.spoofax.jsglr2.incremental.parseforest.*;
 
 public class LazyIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**
@@ -71,8 +67,10 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
 
     @Override public void next() {
         currentOffset += last.width();
-        if(stack.isEmpty())
+        if(stack.isEmpty()) {
             last = null;
+            return;
+        }
         StackTuple res = stack.pop();
         while(rightSibling(res) == null)
             if(stack.isEmpty()) {
@@ -82,6 +80,18 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
                 res = stack.pop();
         stack.push(new StackTuple(res.parseForest, res.childIndex + 1));
         last = rightSibling(res);
+    }
+
+    @Override public boolean lookaheadIsUnchanged() {
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            IncrementalParseForest node = rightSibling(stack.get(i));
+            if(node != null){
+                if(node.isTerminal())
+                    return true;
+                return ((IncrementalParseNode) node).production() != null;
+            }
+        }
+        return true; // EOF is always unchanged
     }
 
     private IncrementalParseForest rightSibling(StackTuple res) {

@@ -73,4 +73,13 @@ public class EagerIncrementalInputStack extends AbstractInputStack implements II
     @Override public IncrementalParseForest getNode() {
         return stack.isEmpty() ? null : stack.peek();
     }
+
+    @Override public boolean lookaheadIsUnchanged() {
+        if(stack.size() < 2)
+            return true; // EOF is always unchanged
+        IncrementalParseForest node = stack.get(stack.size() - 2);
+        if(node.isTerminal())
+            return true;
+        return ((IncrementalParseNode) node).production() != null;
+    }
 }

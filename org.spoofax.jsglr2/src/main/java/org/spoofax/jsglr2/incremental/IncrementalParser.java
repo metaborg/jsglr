@@ -86,14 +86,20 @@ public class IncrementalParser
             || parseState.activeStacks.getSingle().state().id() != parseTable.getStartState().id())
             return false;
 
-        IncrementalParseNode rootNode = (IncrementalParseNode) parseState.inputStack.getNode();
+        IncrementalParseForest node = parseState.inputStack.getNode();
+
+        // ...the parse node at the top of the stack has already been broken down all the way down to a terminal
+        if(node.isTerminal())
+            return false;
+
+        IncrementalParseNode rootNode = (IncrementalParseNode) node;
 
         // ...the root node is a temporary node
         if(rootNode.production() == null)
             return false;
 
-        // ...the root node does not span the entire input
-        if(rootNode.width() != parseState.inputStack.length())
+        // ...the parse node at the top of the stack has already been broken down
+        if(!rootNode.production().lhs().descriptor().equals("<START>"))
             return false;
 
         StackNode stack = parseState.activeStacks.getSingle();

@@ -18,6 +18,8 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
+import org.spoofax.jsglr2.inputstack.incremental.InlinedEagerIncrementalInputStack;
+import org.spoofax.jsglr2.inputstack.incremental.LinkedIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
@@ -66,6 +68,16 @@ public class IncrementalParser
 
     @Override protected ParseState getParseState(JSGLR2Request request, String previousInput,
         IncrementalParseForest previousResult) {
+        // TODO rewrite incrementalInputStackFactory to accept a List<EditorUpdate>
+        // For now, only use the new input stack if we're not doing recovery, checked using an ugly instanceof
+        if(!(incrementalInputStackFactory.get(previousResult, request.input) instanceof LinkedIncrementalInputStack)) {
+            if(previousInput != null && previousResult != null) {
+                return parseStateFactory.get(request, new InlinedEagerIncrementalInputStack(previousResult,
+                    request.input, diff.diff(previousInput, request.input)), observing);
+            } else {
+                return parseStateFactory.get(request, new InlinedEagerIncrementalInputStack(request.input), observing);
+            }
+        }
         IncrementalParseForest updatedTree = previousInput != null && previousResult != null
             ? processUpdates.processUpdates(previousInput, previousResult, diff.diff(previousInput, request.input))
             : processUpdates.getParseNodeFromString(request.input);

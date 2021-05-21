@@ -28,6 +28,8 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
+import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
@@ -81,12 +83,14 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                         continue;
                     IncrementalParseForest result;
                     try {
-                        result = ((ParseSuccess<IncrementalParseForest>) parser.parse(
-                            new JSGLR2Request(content, input.fileName, null), previousInput,
-                            previousResult)).parseResult;
+                        ParseResult<IncrementalParseForest> parse = parser
+                            .parse(new JSGLR2Request(content, input.fileName, null), previousInput, previousResult);
+                        if(!parse.isSuccess())
+                            throw((ParseFailure<IncrementalParseForest>) parse).exception();
+                        result = ((ParseSuccess<IncrementalParseForest>) parse).parseResult;
                     } catch(Exception e) {
-                        throw new IllegalStateException("Parsing failed with variant " + variant.name() + ": "
-                            + e.getClass().getSimpleName() + ": " + e.getMessage());
+                        throw new IllegalStateException("Parsing failed with variant " + variant.name() + " at update "
+                            + i + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
                     }
                     output.set(i, addToOutput(output.get(i), previousResult, result, measureObserver));
                     previousInput = content;
@@ -97,7 +101,7 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
             return IntStream.range(0, versionCount).mapToObj(i -> {
                 Map<IncrementalParsingMeasurement, String> stringMap = output.get(i).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-                stringMap.put(IncrementalParsingMeasurement.version, Integer.toString(i));
+                stringMap.put(version, Integer.toString(i));
                 return stringMap;
             });
         }).collect(Collectors.toList());

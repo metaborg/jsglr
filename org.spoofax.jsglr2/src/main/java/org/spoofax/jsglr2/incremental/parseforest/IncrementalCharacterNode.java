@@ -35,7 +35,8 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     }
 
     @Override public String descriptor() {
-        return "'" + (character == EOF_INT ? "EOF" : character < 32 ? "\\" + character : getYield()) + "'";
+        return "'" + (character == EOF_INT ? "EOF"
+            : character < 32 ? "\\" + character : CharacterClassFactory.intToString(character)) + "'";
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
@@ -43,7 +44,8 @@ public class IncrementalCharacterNode extends IncrementalParseForest implements 
     }
 
     @Override public String getYield() {
-        return character == EOF_INT ? "" : CharacterClassFactory.intToString(character);
+        return character == EOF_INT ? "" : Character.isSupplementaryCodePoint(character)
+            ? new String(Character.toChars(character)) : "" + (char) character;
     }
 
     @Override public String getYield(int length) {

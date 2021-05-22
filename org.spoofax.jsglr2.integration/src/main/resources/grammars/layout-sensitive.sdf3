@@ -1,42 +1,73 @@
 module layout-sensitive
 
 context-free start-symbols
-  
+
   Align
+  Align3
   AlignList
+  AlignListSep
   Offside
   Offside2
   Indent
+  Indent2
   NLIndent
+  NLIndent2
   SingleLine
+  NotSingleLine
+  TemplateCombined
+  Tokenized
+
+template options
+
+  tokenize: ":"
 
 context-free syntax
 
   Align.Align = "align" StmList
 
-  StmList.Stmt  = Stm
+  StmList.Stmt = Stm
   StmList.StmtSeq = head:StmList tail:Stm {layout(align head tail)}
-  
-  AlignList.AlignList  = "alignList" stmts:Stm+ {layout(align-list stmts)}
+
+  Align3.Align3 = "align3" Stm Stm Stm {layout(align 1 2, 3)}
+
+  AlignList.AlignList = "alignList" stmts:Stm+ {layout(align-list stmts)}
+
+  AlignListSep.AlignListSep = <alignListSep <stmts:{Stm ","}+>> {layout(align-list stmts)}
 
   Offside.Offside = "offside" exp:Exp {layout(offside exp)}
-  
+
   Offside2.Offside2 = "offside2" exp:Exp {layout(offside "offside2" exp)}
-  
+
   Indent.Indent = "indent" exp:Exp {layout(indent "indent" exp)}
-  
+
+  Indent2.Indent2 = "indent2" Exp Exp {layout(indent 0 1, 2)}
+
   NLIndent.NLIndent = "NLindent" exp:Exp {layout(newline-indent "NLindent" exp)}
 
+  NLIndent2.NLIndent2 = "NLindent2" Exp Exp {layout(newline-indent 0 1, 2)}
+
   SingleLine.SingleLine = "foo" "bar" {layout(
-    0.first.line == 1.last.line
+    "foo".first.line == "bar".last.line
   )}
 
+  NotSingleLine.NotSingleLine = <foo bar> {layout(
+    !("foo".first.line == "bar".first.line)
+  )}
+
+  TemplateCombined.TemplateCombined = <
+    if <Exp>:
+      <stmts:Stm+>
+  > {layout("if".first.line == ":".last.line && align-list stmts && newline-indent "if" stmts)}
+
+  Tokenized.Tokenized = <colon:> {layout("colon".first.line == ":".last.line)}
+
   Exp.Add = Exp "+" Exp {left}
-  
+
 lexical syntax
   LAYOUT = [\ \t\n\r]
   Exp    = "e" [0-9]+
   Stm    = "s" [0-9]+
 
 context-free restrictions
-  LAYOUT? -/- [\ \t\n\r] 
+  LAYOUT? -/- [\ \t\n\r]
+

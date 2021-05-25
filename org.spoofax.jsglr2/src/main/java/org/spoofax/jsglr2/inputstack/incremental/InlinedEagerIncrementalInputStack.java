@@ -110,7 +110,8 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
                 stack.push(children[i]);
             }
 
-            if(currentUpdate != null && currentOffsetInPrevious + getNode().width() < currentUpdate.deletedStart)
+            // TODO Instead of +1, it would be cleaner to check the follow-restriction length of the production
+            if(currentUpdate != null && currentOffsetInPrevious + getNode().width() + 1 >= currentUpdate.deletedStart)
                 updateIsExposed = true;
         } while(currentNodeHasChange(getNode()));
     }
@@ -148,7 +149,7 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
         if(node == null || currentUpdate == null)
             return false;
 
-        return currentUpdate.deletedStart <= currentOffsetInPrevious + node.width();
+        return currentOffsetInPrevious + node.width() >= currentUpdate.deletedStart;
     }
 
     @Override public IncrementalParseForest getNode() {

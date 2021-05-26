@@ -35,6 +35,7 @@ import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.Reconstruction;
@@ -147,7 +148,8 @@ public abstract class BaseTest implements WithParseTable {
         return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString));
 
-            assertEquals(true, parseResult.isSuccess(), "Parsing failed");
+            assertEquals(true, parseResult.isSuccess(), parseResult instanceof ParseFailure
+                ? "Parsing failed: " + ((ParseFailure<?>) parseResult).failureCause.causeMessage() : "Parsing failed");
         });
     }
 

@@ -110,17 +110,16 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
                 stack.push(children[i]);
             }
 
-            // TODO Instead of +1, it would be cleaner to check the follow-restriction length of the production
-            if(currentUpdate != null && currentOffsetInPrevious + getNode().width() + 1 >= currentUpdate.deletedStart)
+            if(updateIsAtStartOfNextNode())
                 updateIsExposed = true;
-        } while(currentNodeHasChange(getNode()));
+        } while(currentNodeHasChange());
     }
 
     @Override public void next() {
         IncrementalParseForest popped = stack.pop();
         int increase = popped.width();
 
-        assert popped.getYield().equals(inputString.substring(currentOffset, currentOffset + increase));
+        assert isCorrectYield(popped, increase) : "Yield of popped node must be equal to the substring in the input";
 
         currentOffset += increase;
         currentOffsetInPrevious += increase;
@@ -128,9 +127,21 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
         checkUpdate();
     }
 
+    // This method is only used when assertions are enabled
+    private boolean isCorrectYield(IncrementalParseForest popped, int increase) {
+        try {
+            return popped.getYield().equals(inputString.substring(Integer.min(currentOffset, inputLength),
+                Integer.min(currentOffset + increase, inputLength)));
+        } catch(UnsupportedOperationException e) {
+            if(e.getMessage().equals("Cannot get yield of skipped parse node"))
+                return true; // Ignore this exception
+            else
+                throw e;
+        }
+    }
+
     private void checkUpdate() {
         if(currentUpdate != null && currentOffsetInPrevious == currentUpdate.deletedStart) {
-            updateIsExposed = false;
             while(currentOffsetInPrevious < currentUpdate.deletedEnd)
                 if(currentOffsetInPrevious + stack.peek().width() > currentUpdate.deletedEnd)
                     breakDown();
@@ -142,17 +153,37 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
             currentOffsetInPrevious -= currentUpdate.insertedLength();
             pushCharactersToStack(currentUpdate.inserted);
             currentUpdate = ++currentUpdateIndex >= editorUpdates.size() ? null : editorUpdates.get(currentUpdateIndex);
+            updateIsExposed = false;
         }
 
-        if(currentNodeHasChange(getNode()))
+        if(currentNodeHasChange())
             breakDown();
     }
 
-    private boolean currentNodeHasChange(IncrementalParseForest node) {
+    private boolean currentNodeHasChange() {
+        IncrementalParseForest node = getNode();
         if(node == null || currentUpdate == null)
             return false;
 
-        return currentOffsetInPrevious + node.width() >= currentUpdate.deletedStart;
+        // Examples: (current node width indicated with [])
+        // 0 [1  2 ]3  D  5     => 4 < 1 + 2 + 1 => false
+        // 0 [1  2  3 ]D  5     => 4 < 1 + 3 + 1 => true
+        // 0 [1  2  D ]4  5     => 3 < 1 + 3 + 1 => true
+        // TODO Instead of +1, it would be cleaner to check the follow-restriction length of the production
+        return currentUpdate.deletedStart < currentOffsetInPrevious + node.width() + 1;
+    }
+
+    private boolean updateIsAtStartOfNextNode() {
+        IncrementalParseForest node = getNode();
+        if(node == null || currentUpdate == null)
+            return false;
+
+        // Examples: (current node width indicated with [])
+        // 0 [1  2 ]3  D  5     => 4 == 1 + 2 => false
+        // 0 [1  2  3 ]D  5     => 4 == 1 + 3 => true
+        // 0 [1  2  D ]4  5     => 3 == 1 + 3 => false
+        // TODO If current node has follow-restriction length > 1, the first example should ALSO return true
+        return currentUpdate.deletedStart == currentOffsetInPrevious + node.width();
     }
 
     @Override public IncrementalParseForest getNode() {

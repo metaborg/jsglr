@@ -136,6 +136,9 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
                     breakDown();
                 else
                     currentOffsetInPrevious += stack.pop().width();
+            // Also delete any null-yield trees at position `currentUpdate.deletedEnd`
+            while(stack.peek().width() == 0)
+                stack.pop();
             currentOffsetInPrevious -= currentUpdate.insertedLength();
             pushCharactersToStack(currentUpdate.inserted);
             currentUpdate = ++currentUpdateIndex >= editorUpdates.size() ? null : editorUpdates.get(currentUpdateIndex);

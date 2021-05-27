@@ -46,20 +46,16 @@ context-free syntax
 
   NLIndent2.NLIndent2 = "NLindent2" Exp Exp {layout(newline-indent 0 1, 2)}
 
-  SingleLine.SingleLine = "foo" "bar" {layout(
-    "foo".first.line == "bar".last.line
-  )}
+  SingleLine.SingleLine = "foo" "bar" {layout(single-line)}
 
-  NotSingleLine.NotSingleLine = <foo bar> {layout(
-    !("foo".first.line == "bar".first.line)
-  )}
+  NotSingleLine.NotSingleLine = <foo bar> {layout(!single-line)}
 
   TemplateCombined.TemplateCombined = <
     if <Exp>:
       <stmts:Stm+>
-  > {layout("if".first.line == ":".last.line && align-list stmts && newline-indent "if" stmts)}
+  > {layout(single-line "if" ":" && align-list stmts && newline-indent "if" stmts)}
 
-  Tokenized.Tokenized = <colon:> {layout("colon".first.line == ":".last.line)}
+  Tokenized.Tokenized = <colon:> {layout(single-line "colon" ":")}
 
   Exp.Add = Exp "+" Exp {left}
 

@@ -7,9 +7,9 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 
 public class IncrementalInputStackTest extends AbstractIncrementalInputStackTest {
 
-    @Override protected IIncrementalInputStack getStack(IncrementalParseNode previousResult, String inputString,
-        EditorUpdate... editorUpdates) {
-        return new IncrementalInputStack(inputString, previousResult, Arrays.asList(editorUpdates));
+    @Override protected IIncrementalInputStack getStack(String inputString, String previousInput,
+        IncrementalParseNode previousResult, EditorUpdate... editorUpdates) {
+        return new IncrementalInputStack(inputString, previousInput, previousResult, Arrays.asList(editorUpdates));
     }
 
 }

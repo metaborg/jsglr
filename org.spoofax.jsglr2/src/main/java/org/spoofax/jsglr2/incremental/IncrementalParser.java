@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.parseforest.Disambiguator;
@@ -183,7 +184,8 @@ public class IncrementalParser
             // If the broken-down node has no children, it has been removed from the input stack.
             // Therefore, any GotoShift actions that were in the forShifter list become invalid.
             // They can be discarded, because they will replaced by 0-arity reductions.
-            if(!parseState.forShifter.isEmpty() && lookaheadNode.getFirstDerivation().parseForests.length == 0)
+            if(!parseState.forShifter.isEmpty() && (lookaheadNode instanceof IncrementalSkippedNode
+                ? lookaheadNode.width() == 0 : lookaheadNode.getFirstDerivation().parseForests.length == 0))
                 parseState.forShifter.clear();
 
             lookahead = parseState.inputStack.getNode();
@@ -257,7 +259,7 @@ public class IncrementalParser
     // Note that "descendant" includes the root, so the parameter `lookaheadNode` may already be the null-yield node.
     private boolean nullReduceMatchesLookahead(StackNode stack, List<IAction> reduceActions,
         IncrementalParseNode lookaheadNode) {
-        if(reduceActions.isEmpty())
+        if(reduceActions.isEmpty() || lookaheadNode instanceof IncrementalSkippedNode)
             return false;
 
         int[] reduceActionProductions = new int[reduceActions.size()];
@@ -291,7 +293,7 @@ public class IncrementalParser
             }
 
             IncrementalParseForest child = children[0];
-            if(child.isTerminal())
+            if(child.isTerminal() || child instanceof IncrementalSkippedNode)
                 return false;
             lookaheadNode = (IncrementalParseNode) child;
         }

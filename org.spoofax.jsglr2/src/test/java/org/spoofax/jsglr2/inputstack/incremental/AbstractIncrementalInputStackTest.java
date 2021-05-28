@@ -12,17 +12,17 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 public abstract class AbstractIncrementalInputStackTest extends AbstractPreprocessingIncrementalInputStackTest {
 
     @Override protected IIncrementalInputStack getStack(IncrementalParseNode root, String inputString) {
-        return getStack(root, inputString, new EditorUpdate[0]);
+        return getStack(inputString, inputString, root);
     }
 
-    protected abstract IIncrementalInputStack getStack(IncrementalParseNode previousResult, String inputString,
-        EditorUpdate... editorUpdates);
+    protected abstract IIncrementalInputStack getStack(String inputString, String previousInput,
+        IncrementalParseNode previousResult, EditorUpdate... editorUpdates);
 
     @Test public void testThreeChildrenFullChange() {
         IncrementalParseNode root = new IncrementalParseNode(new IncrementalCharacterNode('a'),
             new IncrementalCharacterNode('b'), new IncrementalCharacterNode('c'));
 
-        IIncrementalInputStack stack = getStack(root, "xyz", new EditorUpdate(0, 3, "xyz"));
+        IIncrementalInputStack stack = getStack("xyz", "abc", root, new EditorUpdate(0, 3, "xyz"));
         assertTopOfStack('x', stack);
         assertLeftBreakdown('x', stack);
         assertPopLookahead('y', stack);
@@ -38,7 +38,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         IncrementalCharacterNode node3 = new IncrementalCharacterNode('c');
         IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
 
-        IIncrementalInputStack stack = getStack(root, "ayc", new EditorUpdate(1, 2, "y"));
+        IIncrementalInputStack stack = getStack("ayc", "abc", root, new EditorUpdate(1, 2, "y"));
         assertTopOfStack(node1, stack);
         assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node1, stack);
@@ -63,7 +63,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
         IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
 
-        IIncrementalInputStack stack = getStack(root, "wbcd", new EditorUpdate(0, 1, "w"));
+        IIncrementalInputStack stack = getStack("wbcd", "abcd", root, new EditorUpdate(0, 1, "w"));
         assertTopOfStack('w', stack);
         assertLookaheadIsUnchanged(stack, true);
         assertLeftBreakdown('w', stack);
@@ -74,7 +74,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         assertLookaheadIsUnchanged(stack, true);
         assertPoppingEOF(stack);
 
-        stack = getStack(root, "axcd", new EditorUpdate(1, 2, "x"));
+        stack = getStack("axcd", "abcd", root, new EditorUpdate(1, 2, "x"));
         assertTopOfStack(node1, stack);
         assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node1, stack);
@@ -85,7 +85,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         assertLookaheadIsUnchanged(stack, true);
         assertPoppingEOF(stack);
 
-        stack = getStack(root, "abyd", new EditorUpdate(2, 3, "y"));
+        stack = getStack("abyd", "abcd", root, new EditorUpdate(2, 3, "y"));
         assertTopOfStack(node1, stack);
         assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node1, stack);
@@ -100,7 +100,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         assertLeftBreakdown(node4, stack);
         assertPoppingEOF(stack);
 
-        stack = getStack(root, "abcz", new EditorUpdate(3, 4, "z"));
+        stack = getStack("abcz", "abcd", root, new EditorUpdate(3, 4, "z"));
         assertTopOfStack(parseNode1, stack);
         assertLookaheadIsUnchanged(stack, true);
         assertPopLookahead(node3, stack);
@@ -121,7 +121,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         IncrementalParseNode parseNode3 = new IncrementalParseNode(node4);
         IncrementalParseNode root = new IncrementalParseNode(parseNode1, node3, parseNode3);
 
-        IIncrementalInputStack stack = getStack(root, "abcz", new EditorUpdate(3, 4, "z"));
+        IIncrementalInputStack stack = getStack("abcz", "abcd", root, new EditorUpdate(3, 4, "z"));
         assertTopOfStack(parseNode1, stack);
         assertLookaheadIsUnchanged(stack, true);
         assertPopLookahead(node3, stack);
@@ -144,7 +144,7 @@ public abstract class AbstractIncrementalInputStackTest extends AbstractPreproce
         IncrementalParseNode parseNode3 = new IncrementalParseNode(node3, node4);
         IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2, parseNode3);
 
-        IIncrementalInputStack stack = getStack(root, "axcd", new EditorUpdate(1, 2, "x"));
+        IIncrementalInputStack stack = getStack("axcd", "abcd", root, new EditorUpdate(1, 2, "x"));
         assertTopOfStack(node1, stack);
         assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node1, stack);

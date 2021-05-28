@@ -12,9 +12,9 @@ public class LinkedIncrementalInputStack extends AbstractIncrementalInputStack {
         super(original);
     }
 
-    public LinkedIncrementalInputStack(String input, IncrementalParseForest previousResult,
+    public LinkedIncrementalInputStack(String input, String previousInput, IncrementalParseForest previousResult,
         List<EditorUpdate> editorUpdates) {
-        super(input, previousResult, editorUpdates);
+        super(input, previousInput, previousResult, editorUpdates);
     }
 
     public static IncrementalInputStackFactory<IIncrementalInputStack> factory(IStringDiff diff) {

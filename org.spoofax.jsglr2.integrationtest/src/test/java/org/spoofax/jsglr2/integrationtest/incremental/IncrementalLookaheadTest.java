@@ -97,7 +97,7 @@ public class IncrementalLookaheadTest extends BaseTestWithSdf3ParseTables {
 
             testParseNodeReuse(inputStrings[0], inputStrings[1], //
                 new ParseNodeDescriptor(0, 0, "LAYOUT", null), //
-                new ParseNodeDescriptor(5, 0, "\"]\"", null), //
+                new ParseNodeDescriptor(5, 1, "\"]\"", null, true), //
                 new ParseNodeDescriptor(6, 0, "LAYOUT", null)));
     }
 

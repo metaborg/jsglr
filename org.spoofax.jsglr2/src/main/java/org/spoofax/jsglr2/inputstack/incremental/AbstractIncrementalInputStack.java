@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.inputstack.incremental;
 
 import java.util.List;
 
-import org.metaborg.util.functions.Function3;
+import org.metaborg.util.functions.Function4;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -20,6 +20,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 public abstract class AbstractIncrementalInputStack extends AbstractPreprocessingIncrementalInputStack
     implements IIncrementalInputStack {
 
+    private final String previousInput;
     private final List<EditorUpdate> editorUpdates;
     private int currentUpdateIndex = 0;
     private EditorUpdate currentUpdate = null;
@@ -30,6 +31,7 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     AbstractIncrementalInputStack(AbstractIncrementalInputStack original) {
         super(original);
 
+        this.previousInput = original.previousInput;
         this.editorUpdates = original.editorUpdates;
         this.currentUpdateIndex = original.currentUpdateIndex;
         this.currentUpdate = original.currentUpdate;
@@ -37,10 +39,11 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
         this.currentOffsetInPrevious = original.currentOffsetInPrevious;
     }
 
-    public AbstractIncrementalInputStack(String input, IncrementalParseForest previousResult,
+    public AbstractIncrementalInputStack(String input, String previousInput, IncrementalParseForest previousResult,
         List<EditorUpdate> editorUpdates) {
         super(previousResult, input);
 
+        this.previousInput = previousInput;
         this.editorUpdates = editorUpdates;
 
         if(editorUpdates.isEmpty())
@@ -52,7 +55,7 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     }
 
     static IncrementalInputStackFactory<IIncrementalInputStack> factoryBuilder(IStringDiff diff,
-        Function3<String, IncrementalParseForest, List<EditorUpdate>, IIncrementalInputStack> constructor) {
+        Function4<String, String, IncrementalParseForest, List<EditorUpdate>, IIncrementalInputStack> constructor) {
         return (inputString, previousInput, previousResult) -> {
             if(previousInput != null && previousResult != null) {
                 List<EditorUpdate> editorUpdates = diff.diff(previousInput, inputString);
@@ -63,7 +66,7 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
                     return new StringIncrementalInputStack(inputString);
                 }
 
-                return constructor.apply(inputString, previousResult, editorUpdates);
+                return constructor.apply(inputString, previousInput, previousResult, editorUpdates);
             }
 
             return new StringIncrementalInputStack(inputString);
@@ -79,18 +82,19 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
             if(current.isTerminal())
                 return;
 
+            stack.pop(); // always pop last lookahead, whether it has children or not
+
             if(current instanceof IncrementalSkippedNode) {
                 // Break down a skipped node by explicitly instantiating character nodes for the skipped part
-                stack.pop();
-                pushCharactersToStack(inputString.substring(currentOffset, currentOffset + current.width()));
-                return;
-            }
-
-            stack.pop(); // always pop last lookahead, whether it has children or not
-            IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
-            // Push all children to stack in reverse order
-            for(int i = children.length - 1; i >= 0; i--) {
-                stack.push(children[i]);
+                pushCharactersToStack(
+                    previousInput.substring(currentOffsetInPrevious, currentOffsetInPrevious + current.width()));
+            } else {
+                IncrementalParseForest[] children =
+                    ((IncrementalParseNode) current).getFirstDerivation().parseForests();
+                // Push all children to stack in reverse order
+                for(int i = children.length - 1; i >= 0; i--) {
+                    stack.push(children[i]);
+                }
             }
 
             if(updateIsAtStartOfNextNode())

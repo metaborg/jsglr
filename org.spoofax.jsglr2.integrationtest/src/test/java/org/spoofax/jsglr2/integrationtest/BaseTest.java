@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.ParseTableVariant;
@@ -391,6 +390,11 @@ public abstract class BaseTest implements WithParseTable {
     protected Stream<DynamicTest> testParseNodeReuse(String inputString1, String inputString2,
         ParseNodeDescriptor... parseNodeDescriptors) {
         return testPerVariant(getTestVariants(isIncrementalVariant), variant -> () -> {
+            ParseNodeDescriptor[] filteredDescriptors = Arrays.stream(parseNodeDescriptors)
+                .filter(parseNodeDescriptor -> parseNodeDescriptor.onlyForFullForest == null
+                    || parseNodeDescriptor.onlyForFullForest == isNonOptimizedParseForestVariant.test(variant))
+                .toArray(ParseNodeDescriptor[]::new);
+
             @SuppressWarnings("unchecked") IParser<IParseForest> parser = (IParser<IParseForest>) variant.parser();
             ParseResult<IParseForest> parse1 = parser.parse(inputString1);
             assertTrue(parse1.isSuccess(), "Parse 1 of " + inputString1 + " failed!");
@@ -402,22 +406,22 @@ public abstract class BaseTest implements WithParseTable {
             Map<IParseForest, IParseNode<?, ?>> cache = populateCache(parseForest1);
             Map<IParseForest, Integer> offsets = calculateOffsets(parseForest1);
             List<IParseNode<?, ?>> reused = checkReuse(cache, parseForest2);
-            assertEquals(parseNodeDescriptors.length, reused.size(),
+            assertEquals(filteredDescriptors.length, reused.size(),
                 "Length of reused nodes not equal! Reused: [\n" + reused.stream()
                     .map(n -> "  offset " + offsets.get(n) + ", width " + n.width() + ", symbol "
                         + n.production().lhs().descriptor() + "." + n.production().constructor() + ":\n    "
                         + n.toString().replaceAll("\n", "\n    "))
                     .collect(Collectors.joining("\n")) + "\n]");
-            for(int i = 0; i < parseNodeDescriptors.length; i++) {
+            for(int i = 0; i < filteredDescriptors.length; i++) {
                 IParseNode<?, ?> node = reused.get(i);
-                Assertions.assertEquals(parseNodeDescriptors[i].offset, (int) offsets.get(reused.get(i)),
-                    "Offsets do not match for " + parseNodeDescriptors[i]);
-                Assertions.assertEquals(parseNodeDescriptors[i].width, parseNodeDescriptors[i].width,
-                    "Width does not match for " + parseNodeDescriptors[i]);
-                Assertions.assertEquals(parseNodeDescriptors[i].sort, node.production().lhs().descriptor(),
-                    "Sort does not match for " + parseNodeDescriptors[i]);
-                Assertions.assertEquals(parseNodeDescriptors[i].cons, node.production().constructor(),
-                    "Cons does not match for " + parseNodeDescriptors[i]);
+                assertEquals(filteredDescriptors[i].offset, (int) offsets.get(reused.get(i)),
+                    "Offsets do not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].width, node.width(),
+                    "Width does not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].sort, node.production().lhs().descriptor(),
+                    "Sort does not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].cons, node.production().constructor(),
+                    "Cons does not match for " + filteredDescriptors[i]);
             }
         });
     }

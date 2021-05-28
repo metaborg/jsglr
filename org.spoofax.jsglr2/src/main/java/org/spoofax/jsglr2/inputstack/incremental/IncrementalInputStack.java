@@ -12,9 +12,9 @@ public class IncrementalInputStack extends AbstractIncrementalInputStack {
         super(original);
     }
 
-    public IncrementalInputStack(String input, IncrementalParseForest previousResult,
+    public IncrementalInputStack(String input, String previousInput, IncrementalParseForest previousResult,
         List<EditorUpdate> editorUpdates) {
-        super(input, previousResult, editorUpdates);
+        super(input, previousInput, previousResult, editorUpdates);
     }
 
     public static IncrementalInputStackFactory<IIncrementalInputStack> factory(IStringDiff diff) {

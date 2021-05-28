@@ -14,7 +14,7 @@ public class IncrementalJava8Test extends BaseTestWithParseTableFromTerm {
         setupParseTable("Java8");
     }
 
-    @TestFactory public Stream<DynamicTest> testOriginal() throws ParseError, IOException {
+    @TestFactory public Stream<DynamicTest> testSubstituteLoggingEvent() throws ParseError, IOException {
         return testIncrementalSuccessByBatch( //
             getFileAsString("Java/SubstituteLoggingEvent.java/6.in"),
             getFileAsString("Java/SubstituteLoggingEvent.java/7.in"),

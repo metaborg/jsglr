@@ -28,4 +28,10 @@ public class Java8Test extends BaseTestWithParseTableFromTermWithJSGLR1 {
         return testSuccessByJSGLR1(sampleProgram);
     }
 
+    // TODO this test currently fails when parsing with an SLR(1) parse table, not sure yet why
+    // SLR(1) parse table generation is enabled by checking out https://github.com/metaborg/sdf/pull/27
+    @TestFactory public Stream<DynamicTest> testFloatSLR() throws ParseError {
+        return testParseSuccess("class S { double M() { return Math.round(jw * 100.0D) / 100.0D; } }");
+    }
+
 }

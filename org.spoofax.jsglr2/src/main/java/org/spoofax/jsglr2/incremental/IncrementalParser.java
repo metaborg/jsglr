@@ -9,17 +9,11 @@ import org.metaborg.parsetable.actions.*;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
-import org.spoofax.jsglr2.incremental.diff.IStringDiff;
-import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
-import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
-import org.spoofax.jsglr2.inputstack.incremental.InlinedEagerIncrementalInputStack;
-import org.spoofax.jsglr2.inputstack.incremental.LinkedIncrementalInputStack;
 import org.spoofax.jsglr2.parseforest.Disambiguator;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
@@ -43,8 +37,6 @@ public class IncrementalParser
     Parser<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> {
 
     private final IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory;
-    private final IStringDiff diff;
-    private final ProcessUpdates<StackNode, ParseState> processUpdates;
 
     public IncrementalParser(IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory,
         ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, StackNode, ParseState> parseStateFactory,
@@ -60,28 +52,12 @@ public class IncrementalParser
             reduceManagerFactory, failureHandlerFactory, reporterFactory);
 
         this.incrementalInputStackFactory = incrementalInputStackFactory;
-        // TODO parametrize parser on diff algorithm for benchmarking
-        this.diff = new JGitHistogramDiff();
-        this.processUpdates =
-            new ProcessUpdates<>((IncrementalParseForestManager<StackNode, ParseState>) parseForestManager);
     }
 
     @Override protected ParseState getParseState(JSGLR2Request request, String previousInput,
         IncrementalParseForest previousResult) {
-        // TODO rewrite incrementalInputStackFactory to accept a List<EditorUpdate>
-        // For now, only use the new input stack if we're not doing recovery, checked using an ugly instanceof
-        if(!(incrementalInputStackFactory.get(previousResult, request.input) instanceof LinkedIncrementalInputStack)) {
-            if(previousInput != null && previousResult != null) {
-                return parseStateFactory.get(request, new InlinedEagerIncrementalInputStack(previousResult,
-                    request.input, diff.diff(previousInput, request.input)), observing);
-            } else {
-                return parseStateFactory.get(request, new InlinedEagerIncrementalInputStack(request.input), observing);
-            }
-        }
-        IncrementalParseForest updatedTree = previousInput != null && previousResult != null
-            ? processUpdates.processUpdates(previousInput, previousResult, diff.diff(previousInput, request.input))
-            : processUpdates.getParseNodeFromString(request.input);
-        return parseStateFactory.get(request, incrementalInputStackFactory.get(updatedTree, request.input), observing);
+        return parseStateFactory.get(request,
+            incrementalInputStackFactory.get(request.input, previousInput, previousResult), observing);
     }
 
     @Override protected void parseLoop(ParseState parseState) throws ParseException {

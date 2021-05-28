@@ -1,24 +1,24 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
-import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
+import org.metaborg.util.functions.Function3;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
-public class InlinedEagerIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
-    /**
-     * The stack contains all subtrees that are yet to be popped. The top of the stack also contains the subtree that
-     * has been returned last time. The stack initially only contains EOF and the root, and will already have been
-     * broken down as much as required for the list of EditorUpdates.
-     */
-    protected final Stack<IncrementalParseForest> stack = new Stack<>();
+/**
+ * This type of incremental input stack processes the list of updates during parsing, instead of having a preprocessing
+ * step. Any time when the node at the top of the stack includes an update (including at construction time), this parse
+ * node is broken down until this is no longer the case. Once the parser arrives at the offset that matches the start of
+ * the update, this update is applied (i.e., nodes within the deletion range are deleted, and new character nodes
+ * representing the inserted text are pushed onto the stack). After an update is applied, we move to the next update in
+ * the list.
+ */
+public abstract class AbstractIncrementalInputStack extends AbstractPreprocessingIncrementalInputStack
+    implements IIncrementalInputStack {
 
     private final List<EditorUpdate> editorUpdates;
     private int currentUpdateIndex = 0;
@@ -27,13 +27,9 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
 
     private int currentOffsetInPrevious = 0;
 
-    InlinedEagerIncrementalInputStack(InlinedEagerIncrementalInputStack original) {
-        super(original.inputString);
-        this.currentOffset = original.currentOffset;
+    AbstractIncrementalInputStack(AbstractIncrementalInputStack original) {
+        super(original);
 
-        for(IncrementalParseForest node : original.stack) {
-            this.stack.push(node);
-        }
         this.editorUpdates = original.editorUpdates;
         this.currentUpdateIndex = original.currentUpdateIndex;
         this.currentUpdate = original.currentUpdate;
@@ -41,26 +37,9 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
         this.currentOffsetInPrevious = original.currentOffsetInPrevious;
     }
 
-    public InlinedEagerIncrementalInputStack(String inputString) {
-        super(inputString);
-        editorUpdates = Collections.emptyList();
-
-        stack.push(EOF_NODE);
-        pushCharactersToStack(inputString);
-    }
-
-    private void pushCharactersToStack(String inputString) {
-        int[] chars = inputString.codePoints().toArray();
-        for(int i = chars.length - 1; i >= 0; i--) {
-            stack.push(new IncrementalCharacterNode(chars[i]));
-        }
-    }
-
-    public InlinedEagerIncrementalInputStack(IncrementalParseForest previousResult, String input,
+    public AbstractIncrementalInputStack(String input, IncrementalParseForest previousResult,
         List<EditorUpdate> editorUpdates) {
-        super(input);
-        stack.push(EOF_NODE);
-        stack.push(previousResult);
+        super(previousResult, input);
 
         this.editorUpdates = editorUpdates;
 
@@ -69,19 +48,26 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
 
         this.currentUpdate = editorUpdates.get(0);
 
-        // Optimization: if everything is deleted/replaced: then return a tree created from the inserted string
-        if(editorUpdates.size() == 1 && currentUpdate.deletedStart == 0
-            && currentUpdate.deletedEnd == previousResult.width()) {
-            stack.pop();
-            pushCharactersToStack(currentUpdate.inserted);
-            return;
-        }
-
         checkUpdate();
     }
 
-    @Override public InlinedEagerIncrementalInputStack clone() {
-        return new InlinedEagerIncrementalInputStack(this);
+    static IncrementalInputStackFactory<IIncrementalInputStack> factoryBuilder(IStringDiff diff,
+        Function3<String, IncrementalParseForest, List<EditorUpdate>, IIncrementalInputStack> constructor) {
+        return (inputString, previousInput, previousResult) -> {
+            if(previousInput != null && previousResult != null) {
+                List<EditorUpdate> editorUpdates = diff.diff(previousInput, inputString);
+
+                // Optimization: if everything is deleted/replaced, then start a batch parse
+                if(editorUpdates.size() == 1 && editorUpdates.get(0).deletedStart == 0
+                    && editorUpdates.get(0).deletedEnd == previousResult.width()) {
+                    return new StringIncrementalInputStack(inputString);
+                }
+
+                return constructor.apply(inputString, previousResult, editorUpdates);
+            }
+
+            return new StringIncrementalInputStack(inputString);
+        };
     }
 
     @Override public void breakDown() {
@@ -96,10 +82,7 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
             if(current instanceof IncrementalSkippedNode) {
                 // Break down a skipped node by explicitly instantiating character nodes for the skipped part
                 stack.pop();
-                for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
-                    c = inputString.codePointBefore(i);
-                    stack.push(new IncrementalCharacterNode(c));
-                }
+                pushCharactersToStack(inputString.substring(currentOffset, currentOffset + current.width()));
                 return;
             }
 
@@ -166,9 +149,9 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
             return false;
 
         // Examples: (current node width indicated with [])
-        // 0 [1  2 ]3  D  5     => 4 < 1 + 2 + 1 => false
-        // 0 [1  2  3 ]D  5     => 4 < 1 + 3 + 1 => true
-        // 0 [1  2  D ]4  5     => 3 < 1 + 3 + 1 => true
+        // 0 [1 2 ]3 D 5 => 4 < 1 + 2 + 1 => false
+        // 0 [1 2 3 ]D 5 => 4 < 1 + 3 + 1 => true
+        // 0 [1 2 D ]4 5 => 3 < 1 + 3 + 1 => true
         // TODO Instead of +1, it would be cleaner to check the follow-restriction length of the production
         return currentUpdate.deletedStart < currentOffsetInPrevious + node.width() + 1;
     }
@@ -179,15 +162,11 @@ public class InlinedEagerIncrementalInputStack extends AbstractInputStack implem
             return false;
 
         // Examples: (current node width indicated with [])
-        // 0 [1  2 ]3  D  5     => 4 == 1 + 2 => false
-        // 0 [1  2  3 ]D  5     => 4 == 1 + 3 => true
-        // 0 [1  2  D ]4  5     => 3 == 1 + 3 => false
+        // 0 [1 2 ]3 D 5 => 4 == 1 + 2 => false
+        // 0 [1 2 3 ]D 5 => 4 == 1 + 3 => true
+        // 0 [1 2 D ]4 5 => 3 == 1 + 3 => false
         // TODO If current node has follow-restriction length > 1, the first example should ALSO return true
         return currentUpdate.deletedStart == currentOffsetInPrevious + node.width();
-    }
-
-    @Override public IncrementalParseForest getNode() {
-        return stack.isEmpty() ? null : stack.peek();
     }
 
     @Override public boolean lookaheadIsUnchanged() {

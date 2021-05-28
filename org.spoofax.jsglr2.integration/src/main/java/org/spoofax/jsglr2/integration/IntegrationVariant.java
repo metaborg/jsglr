@@ -81,7 +81,7 @@ public class IntegrationVariant {
 
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recovery.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recoveryElkhound.variant),
-            // TODO new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recoveryIncremental.variant),
+            new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recoveryIncremental.variant),
             // Recovery variants should cover all imploder variants such that error reporting from each variant is tested
             new IntegrationVariant(new ParseTableVariant(), new ParserVariant(ActiveStacksRepresentation.standard(), ForActorStacksRepresentation.standard(), ParseForestRepresentation.standard(), ParseForestConstruction.standard(), StackRepresentation.Hybrid, Reducing.Basic, true), ImploderVariant.Recursive, TokenizerVariant.Recursive),
             new IntegrationVariant(new ParseTableVariant(), new ParserVariant(ActiveStacksRepresentation.standard(), ForActorStacksRepresentation.standard(), ParseForestRepresentation.standard(), ParseForestConstruction.standard(), StackRepresentation.Hybrid, Reducing.Basic, true), ImploderVariant.Iterative, TokenizerVariant.Iterative)

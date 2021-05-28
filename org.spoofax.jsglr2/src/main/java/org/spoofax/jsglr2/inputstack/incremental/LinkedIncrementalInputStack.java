@@ -1,90 +1,31 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
-import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
+import java.util.List;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
+import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
-public class LinkedIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
-    private StackTuple head;
+public class LinkedIncrementalInputStack extends AbstractIncrementalInputStack {
 
-    /**
-     * @param inputString
-     *            should be equal to the yield of the root.
-     */
-    public LinkedIncrementalInputStack(IncrementalParseForest root, String inputString) {
-        super(inputString);
-        this.head = new StackTuple(root, new StackTuple(EOF_NODE));
+    LinkedIncrementalInputStack(AbstractIncrementalInputStack original) {
+        super(original);
     }
 
-    LinkedIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield());
+    public LinkedIncrementalInputStack(String input, IncrementalParseForest previousResult,
+        List<EditorUpdate> editorUpdates) {
+        super(input, previousResult, editorUpdates);
     }
 
-    @Override public IncrementalParseForest getNode() {
-        return head == null ? null : head.node;
+    public static IncrementalInputStackFactory<IIncrementalInputStack> factory(IStringDiff diff) {
+        return factoryBuilder(diff, LinkedIncrementalInputStack::new);
+    }
+
+    @Override protected LinkedStack<IncrementalParseForest> createStack() {
+        return new LinkedStack<>();
     }
 
     @Override public LinkedIncrementalInputStack clone() {
-        LinkedIncrementalInputStack clone = new LinkedIncrementalInputStack(EOF_NODE, inputString);
-        clone.head = head;
-        clone.currentOffset = currentOffset;
-        return clone;
-    }
-
-    @Override public void breakDown() {
-        if(head == null)
-            return;
-
-        IncrementalParseForest current = head.node;
-        if(current.isTerminal())
-            return;
-
-        if(current instanceof IncrementalSkippedNode) {
-            // Break down a skipped node by explicitly instantiating character nodes for the skipped part
-            head = head.next;
-            for(int i = currentOffset + current.width(), c; i > currentOffset; i -= Character.charCount(c)) {
-                c = inputString.codePointBefore(i);
-                head = new StackTuple(new IncrementalCharacterNode(c), head);
-            }
-            return;
-        }
-
-        head = head.next; // always pop last lookahead, whether it has children or not
-        IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
-        // Push all children to stack in reverse order
-        for(int i = children.length - 1; i >= 0; i--) {
-            head = new StackTuple(children[i], head);
-        }
-    }
-
-    @Override public void next() {
-        currentOffset += head.node.width();
-        head = head.next;
-    }
-
-    @Override public boolean lookaheadIsUnchanged() {
-        if(head.next == null)
-            return true;
-        IncrementalParseForest node = head.next.node;
-        if(node.isTerminal())
-            return true;
-        return ((IncrementalParseNode) node).production() != null;
-    }
-
-    private static class StackTuple {
-        final IncrementalParseForest node;
-        final StackTuple next;
-
-        StackTuple(IncrementalParseForest node, StackTuple next) {
-            this.node = node;
-            this.next = next;
-        }
-
-        StackTuple(IncrementalParseForest node) {
-            this(node, null);
-        }
+        return new LinkedIncrementalInputStack(this);
     }
 }

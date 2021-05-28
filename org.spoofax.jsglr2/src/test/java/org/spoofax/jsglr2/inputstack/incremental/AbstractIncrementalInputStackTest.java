@@ -1,111 +1,60 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
-import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_CODEPOINT;
-import static org.spoofax.jsglr2.parser.PositionTest.SMILEY_STRING;
-
-import java.util.function.BiConsumer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
-public abstract class AbstractIncrementalInputStackTest {
+public abstract class AbstractIncrementalInputStackTest extends AbstractPreprocessingIncrementalInputStackTest {
 
-    protected abstract IIncrementalInputStack getStack(IncrementalParseNode root, String inputString);
-
-    protected IIncrementalInputStack getStack(IncrementalParseNode root) {
-        return getStack(root, root.getYield());
+    @Override protected IIncrementalInputStack getStack(IncrementalParseNode root, String inputString) {
+        return getStack(root, inputString, new EditorUpdate[0]);
     }
 
-    @Test public void testOneNode() {
-        IncrementalCharacterNode node = new IncrementalCharacterNode(42);
-        IncrementalParseNode root = new IncrementalParseNode(node);
-        IIncrementalInputStack stack = getStack(root);
-        assertLeftBreakdown(node, stack);
+    protected abstract IIncrementalInputStack getStack(IncrementalParseNode previousResult, String inputString,
+        EditorUpdate... editorUpdates);
+
+    @Test public void testThreeChildrenFullChange() {
+        IncrementalParseNode root = new IncrementalParseNode(new IncrementalCharacterNode('a'),
+            new IncrementalCharacterNode('b'), new IncrementalCharacterNode('c'));
+
+        IIncrementalInputStack stack = getStack(root, "xyz", new EditorUpdate(0, 3, "xyz"));
+        assertTopOfStack('x', stack);
+        assertLeftBreakdown('x', stack);
+        assertPopLookahead('y', stack);
+        assertLeftBreakdown('y', stack);
+        assertPopLookahead('z', stack);
+        assertLeftBreakdown('z', stack);
         assertPoppingEOF(stack);
-
-        assertPoppingRoot(root);
     }
 
-    @Test public void testThreeChildrenNoYield() {
-        IncrementalParseNode node1 = new IncrementalParseNode();
-        IncrementalParseNode node2 = new IncrementalParseNode();
-        IncrementalParseNode node3 = new IncrementalParseNode();
-        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
-
-        IIncrementalInputStack stack = getStack(root);
-        assertLeftBreakdown(node1, stack);
-        assertPopLookahead(node2, stack);
-        assertLeftBreakdown(node3, stack);
-        assertPoppingEOF(stack);
-
-        assertPoppingRoot(root);
-    }
-
-    @Test public void testThreeChildren() {
+    @Test public void testThreeChildrenPartialChange() {
         IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
         IncrementalCharacterNode node2 = new IncrementalCharacterNode('b');
         IncrementalCharacterNode node3 = new IncrementalCharacterNode('c');
         IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
 
-        IIncrementalInputStack stack = getStack(root);
+        IIncrementalInputStack stack = getStack(root, "ayc", new EditorUpdate(1, 2, "y"));
+        assertTopOfStack(node1, stack);
+        assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertPopLookahead(node2, stack);
-        assertLeftBreakdown(node2, stack);
-        assertPopLookahead(node3, stack);
-        assertLeftBreakdown(node3, stack);
-        assertPoppingEOF(stack);
 
-        assertPoppingRoot(root);
+        assertPopLookahead('y', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('y', stack);
+
+        assertPopLookahead(node3, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown(node3, stack);
+
+        assertPoppingEOF(stack);
     }
 
-    @Test public void testSkippedNode() {
-        IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
-        IncrementalParseNode node2 = new IncrementalSkippedNode(null,
-            new IncrementalParseForest[] { new IncrementalCharacterNode('b'), new IncrementalCharacterNode('c') });
-        IncrementalCharacterNode node3 = new IncrementalCharacterNode('d');
-        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
-
-        IIncrementalInputStack stack = getStack(root, "abcd");
-        assertLeftBreakdown(node1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertPopLookahead(node2, stack);
-        assertLeftBreakdown('b', stack);
-        assertPopLookahead('c', stack);
-        assertPopLookahead(node3, stack);
-        assertLeftBreakdown(node3, stack);
-        assertPoppingEOF(stack);
-
-        assertPoppingEOF(getStack(root, "abcd"));
-    }
-
-    @Test public void testSkippedNodeUnicode() {
-        IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
-        IncrementalParseNode node2 = new IncrementalSkippedNode(null, new IncrementalParseForest[] {
-            new IncrementalCharacterNode('b'), new IncrementalCharacterNode(SMILEY_CODEPOINT) });
-        IncrementalCharacterNode node3 = new IncrementalCharacterNode('d');
-        IncrementalParseNode root = new IncrementalParseNode(node1, node2, node3);
-
-        String inputString = "ab" + SMILEY_STRING + "d";
-        IIncrementalInputStack stack = getStack(root, inputString);
-        assertLeftBreakdown(node1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertPopLookahead(node2, stack);
-        assertLeftBreakdown('b', stack);
-        assertPopLookahead(SMILEY_CODEPOINT, stack);
-        assertPopLookahead(node3, stack);
-        assertLeftBreakdown(node3, stack);
-        assertPoppingEOF(stack);
-
-        assertPoppingEOF(getStack(root, inputString));
-    }
-
-    @Test public void testTwoSubtrees() {
+    @Test public void testNestedChange() {
         IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
         IncrementalCharacterNode node2 = new IncrementalCharacterNode('b');
         IncrementalCharacterNode node3 = new IncrementalCharacterNode('c');
@@ -114,139 +63,110 @@ public abstract class AbstractIncrementalInputStackTest {
         IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
         IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
 
-        IIncrementalInputStack stack = getStack(root);
-        assertLeftBreakdown(parseNode1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertLeftBreakdown(node1, stack);
+        IIncrementalInputStack stack = getStack(root, "wbcd", new EditorUpdate(0, 1, "w"));
+        assertTopOfStack('w', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('w', stack);
         assertPopLookahead(node2, stack);
+        assertLookaheadIsUnchanged(stack, true);
         assertLeftBreakdown(node2, stack);
         assertPopLookahead(parseNode2, stack);
-        assertLeftBreakdown(node3, stack);
-        assertLeftBreakdown(node3, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertPoppingEOF(stack);
+
+        stack = getStack(root, "axcd", new EditorUpdate(1, 2, "x"));
+        assertTopOfStack(node1, stack);
+        assertLookaheadIsUnchanged(stack, false);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead('x', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('x', stack);
+        assertPopLookahead(parseNode2, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertPoppingEOF(stack);
+
+        stack = getStack(root, "abyd", new EditorUpdate(2, 3, "y"));
+        assertTopOfStack(node1, stack);
+        assertLookaheadIsUnchanged(stack, false);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead(node2, stack);
+        assertLookaheadIsUnchanged(stack, false);
+        assertLeftBreakdown(node2, stack);
+        assertPopLookahead('y', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('y', stack);
         assertPopLookahead(node4, stack);
+        assertLookaheadIsUnchanged(stack, true);
         assertLeftBreakdown(node4, stack);
         assertPoppingEOF(stack);
 
-        stack = getStack(root);
-        assertLeftBreakdown(parseNode1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertLeftBreakdown(node1, stack);
-        assertPopLookahead(node2, stack);
-        assertLeftBreakdown(node2, stack);
-        assertPopLookahead(parseNode2, stack);
-        assertPoppingEOF(stack);
-
-        stack = getStack(root);
-        assertLeftBreakdown(parseNode1, stack);
-        assertPopLookahead(parseNode2, stack);
+        stack = getStack(root, "abcz", new EditorUpdate(3, 4, "z"));
+        assertTopOfStack(parseNode1, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertPopLookahead(node3, stack);
+        assertLookaheadIsUnchanged(stack, false);
         assertLeftBreakdown(node3, stack);
-        assertLeftBreakdown(node3, stack);
-        assertPopLookahead(node4, stack);
-        assertLeftBreakdown(node4, stack);
+        assertPopLookahead('z', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('z', stack);
         assertPoppingEOF(stack);
-
-        assertPoppingRoot(root);
     }
 
-    private static class TestTuple {
-        final BiConsumer<IncrementalParseForest, IIncrementalInputStack> action;
-        final IncrementalParseForest expected;
-
-        TestTuple(BiConsumer<IncrementalParseForest, IIncrementalInputStack> action, IncrementalParseForest expected) {
-            this.action = action;
-            this.expected = expected;
-        }
-    }
-
-    @Test public void testClone() {
+    @Test public void testUnchangedLookaheadForTerminal() {
         IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
         IncrementalCharacterNode node2 = new IncrementalCharacterNode('b');
         IncrementalCharacterNode node3 = new IncrementalCharacterNode('c');
         IncrementalCharacterNode node4 = new IncrementalCharacterNode('d');
         IncrementalParseNode parseNode1 = new IncrementalParseNode(node1, node2);
-        IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
-        IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
+        IncrementalParseNode parseNode3 = new IncrementalParseNode(node4);
+        IncrementalParseNode root = new IncrementalParseNode(parseNode1, node3, parseNode3);
 
-        TestTuple[] actions =
-            new TestTuple[] { new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, parseNode1),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node1),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node1),
-                new TestTuple(AbstractIncrementalInputStackTest::assertPopLookahead, node2),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node2),
-                new TestTuple(AbstractIncrementalInputStackTest::assertPopLookahead, parseNode2),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node3),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node3),
-                new TestTuple(AbstractIncrementalInputStackTest::assertPopLookahead, node4),
-                new TestTuple(AbstractIncrementalInputStackTest::assertLeftBreakdown, node4) };
-
-        IIncrementalInputStack original = getStack(root);
-        IIncrementalInputStack[] clones = new IIncrementalInputStack[actions.length];
-        for(int i = 0; i < actions.length; i++) {
-            // Before each action, create a clone
-            clones[i] = original.clone();
-            // Check whether the action works correctly for both the original and all clones created so far
-            actions[i].action.accept(actions[i].expected, original);
-            for(int j = 0; j <= i; j++) {
-                actions[i].action.accept(actions[i].expected, clones[j]);
-                // Also check that the position of the clone matches that of the original, after the action
-                assertEquals(((AbstractInputStack) original).currentOffset,
-                    ((AbstractInputStack) clones[j]).currentOffset);
-            }
-        }
-        assertPoppingEOF(original);
-        for(IIncrementalInputStack clone : clones) {
-            assertPoppingEOF(clone);
-        }
+        IIncrementalInputStack stack = getStack(root, "abcz", new EditorUpdate(3, 4, "z"));
+        assertTopOfStack(parseNode1, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertPopLookahead(node3, stack);
+        // `node3` should actually have `lookaheadIsUnchanged == false`, because it is followed by the update.
+        // However, since it is a terminal node, we do not care, since it cannot be broken down anyway.
+        assertLookaheadIsUnchanged(stack, true);
+        assertPopLookahead('z', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('z', stack);
+        assertPoppingEOF(stack);
     }
 
-    @Test public void testLookaheadQuery() {
+    @Test public void testChangeBeforeNullNode() {
         IncrementalCharacterNode node1 = new IncrementalCharacterNode('a');
         IncrementalCharacterNode node2 = new IncrementalCharacterNode('b');
         IncrementalCharacterNode node3 = new IncrementalCharacterNode('c');
         IncrementalCharacterNode node4 = new IncrementalCharacterNode('d');
         IncrementalParseNode parseNode1 = new IncrementalParseNode(node1, node2);
-        IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
-        IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
+        IncrementalParseNode parseNode2 = new IncrementalParseNode();
+        IncrementalParseNode parseNode3 = new IncrementalParseNode(node3, node4);
+        IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2, parseNode3);
 
-        IIncrementalInputStack original = getStack(root);
-        IIncrementalInputStack clone = original.clone();
-        for(IIncrementalInputStack stack : new IIncrementalInputStack[] { original, clone }) {
-            assertEquals('a', stack.actionQueryCharacter());
-            assertArrayEquals("b".codePoints().toArray(), stack.actionQueryLookahead(1));
-            assertArrayEquals("bc".codePoints().toArray(), stack.actionQueryLookahead(2));
-            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(3));
-            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(4));
-            assertArrayEquals("bcd".codePoints().toArray(), stack.actionQueryLookahead(5));
-        }
+        IIncrementalInputStack stack = getStack(root, "axcd", new EditorUpdate(1, 2, "x"));
+        assertTopOfStack(node1, stack);
+        assertLookaheadIsUnchanged(stack, false);
+        assertLeftBreakdown(node1, stack);
+        assertPopLookahead('x', stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertLeftBreakdown('x', stack);
+        // Note that the null-yield node `parseNode2` has been broken down, because it directly follows an update
+        assertPopLookahead(parseNode3, stack);
+        assertLookaheadIsUnchanged(stack, true);
+        assertPoppingEOF(stack);
     }
 
-    protected void assertPoppingRoot(IncrementalParseNode root) {
-        assertPoppingEOF(getStack(root));
-    }
-
-    protected static void assertPoppingEOF(IIncrementalInputStack stack) {
-        assertPopLookahead(EOF_NODE, stack);
-        assertLeftBreakdown(EOF_NODE, stack);
-        assertPopLookahead(null, stack);
-    }
-
-    protected static void assertLeftBreakdown(IncrementalParseForest forest, IIncrementalInputStack stack) {
-        stack.breakDown();
+    protected static void assertTopOfStack(IncrementalParseForest forest, IIncrementalInputStack stack) {
         assertSame(forest, stack.getNode());
     }
 
-    protected static void assertLeftBreakdown(int character, IIncrementalInputStack stack) {
-        stack.breakDown();
+    protected static void assertTopOfStack(int character, IIncrementalInputStack stack) {
         assertEquals(character, ((IncrementalCharacterNode) stack.getNode()).character());
     }
 
-    protected static void assertPopLookahead(IncrementalParseForest forest, IIncrementalInputStack stack) {
-        stack.next();
-        assertSame(forest, stack.getNode());
-    }
-
-    protected static void assertPopLookahead(int character, IIncrementalInputStack stack) {
-        stack.next();
-        assertEquals(character, ((IncrementalCharacterNode) stack.getNode()).character());
+    protected static void assertLookaheadIsUnchanged(IIncrementalInputStack stack, boolean lookaheadIsUnchanged) {
+        assertEquals(lookaheadIsUnchanged, stack.lookaheadIsUnchanged(), "Node " + stack.getNode()
+            + " was expected to have " + (lookaheadIsUnchanged ? "UN" : "") + "changed lookahead");
     }
 }

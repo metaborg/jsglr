@@ -40,7 +40,8 @@ public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack i
     }
 
     @Override public LazyPreprocessingIncrementalInputStack clone() {
-        LazyPreprocessingIncrementalInputStack clone = new LazyPreprocessingIncrementalInputStack(EOF_NODE, inputString);
+        LazyPreprocessingIncrementalInputStack clone =
+            new LazyPreprocessingIncrementalInputStack(EOF_NODE, inputString);
         clone.stack.clear();
         for(StackTuple stackTuple : stack) {
             clone.stack.push(stackTuple);
@@ -91,16 +92,17 @@ public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack i
         last = rightSibling(res);
     }
 
+    /** See comment at {@link AbstractPreprocessingIncrementalInputStack#lookaheadIsUnchanged()} */
     @Override public boolean lookaheadIsUnchanged() {
-        for(int i = stack.size() - 1; i >= 0; i--) {
-            IncrementalParseForest node = rightSibling(stack.get(i));
-            if(node != null) {
-                if(node.isTerminal())
-                    return true;
-                return ((IncrementalParseNode) node).production() != null;
-            }
-        }
-        return true; // EOF is always unchanged
+        return false;
+        // for(int i = stack.size() - 1; i >= 0; i--) {
+        // IncrementalParseForest node = rightSibling(stack.get(i));
+        // if(node != null) {
+        // if(node.isTerminal()) return true;
+        // return ((IncrementalParseNode) node).production() != null;
+        // }
+        // }
+        // return true; // EOF is always unchanged
     }
 
     private IncrementalParseForest rightSibling(StackTuple res) {

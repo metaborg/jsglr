@@ -37,15 +37,5 @@ public class LinkedPreprocessingIncrementalInputStack extends AbstractPreprocess
         return new LinkedPreprocessingIncrementalInputStack(this);
     }
 
-    @Override public boolean lookaheadIsUnchanged() {
-        LinkedStack<IncrementalParseForest> stack = (LinkedStack<IncrementalParseForest>) this.stack;
-        if(stack.head.next == null)
-            return true;
-        IncrementalParseForest node = stack.head.next.node;
-        if(node.isTerminal())
-            return true;
-        return ((IncrementalParseNode) node).production() != null;
-    }
-
 }
 

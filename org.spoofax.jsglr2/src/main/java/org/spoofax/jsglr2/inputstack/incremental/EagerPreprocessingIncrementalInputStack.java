@@ -4,7 +4,6 @@ import org.spoofax.jsglr2.incremental.IIncrementalParseState;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -33,13 +32,4 @@ public class EagerPreprocessingIncrementalInputStack extends AbstractPreprocessi
         return new EagerPreprocessingIncrementalInputStack(this);
     }
 
-    @Override public boolean lookaheadIsUnchanged() {
-        CloneableStack<IncrementalParseForest> stack = (CloneableStack<IncrementalParseForest>) this.stack;
-        if(stack.size() < 2)
-            return true; // EOF is always unchanged
-        IncrementalParseForest node = stack.get(stack.size() - 2);
-        if(node.isTerminal())
-            return true;
-        return ((IncrementalParseNode) node).production() != null;
-    }
 }

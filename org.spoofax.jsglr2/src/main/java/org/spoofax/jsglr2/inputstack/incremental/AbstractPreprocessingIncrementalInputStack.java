@@ -93,4 +93,20 @@ public abstract class AbstractPreprocessingIncrementalInputStack extends Abstrac
             stack.push(new IncrementalCharacterNode(chars[i]));
         }
     }
+
+    // Note: this method cannot be implemented precisely enough for PreprocessingIncrementalInputStacks.
+    // The commented-out implementation below returns false when the node following the lookahead is a temporary node.
+    // However, it should also return false for all nodes that are broken down after this point,
+    // until we have processed the temporary node in question.
+    // Moreover, this method should return false only when the first character of the temporary node has been changed,
+    // but we cannot detect this efficiently in a preprocessed tree.
+    // Having this method always return false is always correct, though it negatively impacts the amount of reuse,
+    // but we don't currently use the PreprocessingIncrementalInputStacks at the moment, so that doesn't matter.
+    @Override public boolean lookaheadIsUnchanged() {
+        return false;
+        // if(stack.size() < 2) return true; // EOF is always unchanged
+        // IncrementalParseForest node = stack.get(stack.size() - 2);
+        // if(node.isTerminal()) return true;
+        // return ((IncrementalParseNode) node).production() != null;
+    }
 }

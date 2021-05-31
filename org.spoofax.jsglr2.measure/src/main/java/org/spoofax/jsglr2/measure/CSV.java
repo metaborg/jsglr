@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CSV<T> {
 
@@ -37,15 +38,15 @@ public class CSV<T> {
     }
 
     private void writeHeader(PrintWriter out) {
-        writeLine(out, columns.stream().map(T::toString).collect(Collectors.toList()));
+        writeLine(out, columns.stream().map(T::toString));
     }
 
     private void writeRow(PrintWriter out, Map<T, String> row) {
-        writeLine(out, columns.stream().map(column -> row.getOrDefault(column, "")).collect(Collectors.toList()));
+        writeLine(out, columns.stream().map(column -> row.getOrDefault(column, "")));
     }
 
-    private void writeLine(PrintWriter out, List<String> row) {
-        out.println(String.join(",", row));
+    private void writeLine(PrintWriter out, Stream<String> row) {
+        out.println(row.collect(Collectors.joining(",")));
     }
 
 }

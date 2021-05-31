@@ -113,7 +113,8 @@ abstract class ParserMeasureObserver
     }
 
     @Override public void createParseNode(ParseNode parseNode, IProduction production) {
-        parseNodes_.add(parseNode);
+        if(parseNode.production() != null) // Do not record temporary parse nodes created by the incremental parser
+            parseNodes_.add(parseNode);
     }
 
     @Override public void createCharacterNode(ParseForest characterNode, int character) {

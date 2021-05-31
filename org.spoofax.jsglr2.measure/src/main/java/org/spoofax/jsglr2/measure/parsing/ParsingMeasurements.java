@@ -12,7 +12,7 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.measure.CSV;
-import org.spoofax.jsglr2.measure.JSGLR2Measurements;
+import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
 import org.spoofax.jsglr2.measure.Measurements;
 import org.spoofax.jsglr2.parseforest.*;
@@ -27,59 +27,75 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
 import org.spoofax.jsglr2.testset.testinput.StringInput;
 
-public class ParsingMeasurements extends Measurements {
+public class ParsingMeasurements extends Measurements<String, StringInput> {
+
+    public static final ParserVariant variantStandard =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Full,
+            StackRepresentation.Hybrid,
+            Reducing.Basic,
+            false
+        );
+        //@formatter:on
+
+    public static final ParserVariant optimizedParseForest =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Optimized,
+            StackRepresentation.Hybrid,
+            Reducing.Basic,
+            false
+        );
+        //@formatter:on
+
+    public static final ParserVariant variantElkhound =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Hybrid,
+            ParseForestConstruction.Full,
+            StackRepresentation.HybridElkhound,
+            Reducing.Elkhound,
+            false
+        );
+    //@formatter:on
+
+    public static final ParserVariant variantIncremental =
+    //@formatter:off
+        new ParserVariant(
+            ActiveStacksRepresentation.ArrayList,
+            ForActorStacksRepresentation.ArrayDeque,
+            ParseForestRepresentation.Incremental,
+            ParseForestConstruction.Full,
+            StackRepresentation.Hybrid,
+            Reducing.Incremental,
+            false
+        );
+    //@formatter:on
 
     public ParsingMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
     }
 
-    @Override public void measure(JSGLR2Measurements.Config config) throws ParseTableReadException, IOException {
+    @Override public void measure(Config<String, StringInput> config) throws ParseTableReadException, IOException {
         CSV<ParsingMeasurement> output = new CSV<>(ParsingMeasurement.values());
 
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
-        ParserVariant variantStandard =
         //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Full,
-                StackRepresentation.Hybrid,
-                Reducing.Basic,
-                false
-            );
-            //@formatter:on
-
-        ParserVariant optimizedParseForest =
-        //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Optimized,
-                StackRepresentation.Hybrid,
-                Reducing.Basic,
-                false
-            );
-            //@formatter:on
-
-        ParserVariant variantElkhound =
-        //@formatter:off
-            new ParserVariant(
-                ActiveStacksRepresentation.ArrayList,
-                ForActorStacksRepresentation.ArrayDeque,
-                ParseForestRepresentation.Hybrid,
-                ParseForestConstruction.Full,
-                StackRepresentation.HybridElkhound,
-                Reducing.Elkhound,
-                false
-            );
-        //@formatter:on
-
         output.addRows(measure("standard",     variantStandard,      parseTable, new StandardParserMeasureObserver<>()));
         output.addRows(measure("optimized-pf", optimizedParseForest, parseTable, new StandardParserMeasureObserver<>()));
         output.addRows(measure("elkhound",     variantElkhound,      parseTable, new ElkhoundParserMeasureObserver<>()));
+        output.addRows(measure("incremental",  variantIncremental,   parseTable, new StandardParserMeasureObserver<>()));
+        //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
     }
@@ -109,8 +125,8 @@ public class ParsingMeasurements extends Measurements {
                 for(StringInput input : inputBatch.inputs)
                     parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
             } catch(Exception e) {
-                throw new IllegalStateException(
-                    "Parsing failed with variant " + variant.name() + ": " + e.getMessage());
+                throw new IllegalStateException("Parsing failed with variant " + variant.name() + ": "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
 
             return toOutput(name, inputBatch, measureActiveStacksFactory, measureForActorStacksFactory,
@@ -126,7 +142,8 @@ public class ParsingMeasurements extends Measurements {
     StackNode   extends IStackNode,
     ParseState  extends AbstractParseState<?, StackNode>>
 //@formatter:on
-    Map<ParsingMeasurement, String> toOutput(String name, MeasureTestSetWithParseTableReader.InputBatch inputBatch,
+    Map<ParsingMeasurement, String> toOutput(String name,
+        MeasureTestSetWithParseTableReader<String, StringInput>.InputBatch inputBatch,
         MeasureActiveStacksFactory measureActiveStacksFactory,
         MeasureForActorStacksFactory measureForActorStacksFactory,
         ParserMeasureObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState> measureObserver) {

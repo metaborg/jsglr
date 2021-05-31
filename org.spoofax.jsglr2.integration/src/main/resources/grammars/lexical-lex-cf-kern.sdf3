@@ -1,0 +1,21 @@
+module lexical-lex-cf-kern
+
+lexical start-symbols
+	Lexical
+
+lexical syntax
+	Lexical = [a-z]+
+
+context-free start-symbols
+	ContextFree
+
+context-free syntax
+	ContextFree.Single = "cf" [a-z]
+	ContextFree.Double = "cf" [a-z] [a-z]
+
+start-symbols
+	Kernel
+
+syntax
+	Kernel.Single = "kernel" [a-z]
+	Kernel.Double = "kernel" [a-z] [a-z]

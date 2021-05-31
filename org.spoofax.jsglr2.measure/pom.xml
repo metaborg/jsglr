@@ -36,14 +36,24 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>batch</id>
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>incremental</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.spoofax.jsglr2.measure.JSGLR2MeasurementsIncremental</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

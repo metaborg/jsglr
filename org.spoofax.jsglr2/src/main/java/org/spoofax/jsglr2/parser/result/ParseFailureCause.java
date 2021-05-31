@@ -28,18 +28,28 @@ public class ParseFailureCause {
 
     public final Type type;
     public final Position position;
+    public final String explanation;
 
-    public ParseFailureCause(Type type, Position position) {
+    public ParseFailureCause(Type type, Position position, String explanation) {
         this.type = type;
         this.position = position;
+        this.explanation = explanation;
+    }
+
+    public ParseFailureCause(Type type, Position position) {
+        this(type, position, null);
     }
 
     public ParseFailureCause(Type type) {
-        this(type, null);
+        this(type, null, null);
+    }
+
+    public String causeMessage() {
+        return explanation != null ? type.message + " (" + explanation + ")" : type.message;
     }
 
     public Message toMessage() {
-        return new Message(type.message, type.category, position);
+        return new Message(causeMessage(), type.category, position);
     }
 
 }

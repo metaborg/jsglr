@@ -10,24 +10,16 @@ import org.spoofax.jsglr2.util.TreePrettyPrinter;
 
 public class IncrementalSkippedNode extends IncrementalParseNode {
 
+    public IncrementalSkippedNode(IProduction production, IncrementalParseForest[] parseForests, IState state) {
+        super(sumWidth(parseForests), production, state);
+    }
+
     public IncrementalSkippedNode(IProduction production, IncrementalParseForest[] parseForests) {
-        super(sumWidth(parseForests), production);
-    }
-
-    @Override public boolean isReusable() {
-        return false; // Never reusable, because it was skipped
-    }
-
-    @Override public boolean isReusable(IState stackState) {
-        return false;
-    }
-
-    @Override public boolean isTerminal() {
-        return true; // Not really, but close enough, as it has no children
+        super(sumWidth(parseForests), production, null);
     }
 
     @Override protected void prettyPrint(TreePrettyPrinter printer) {
-        printer.println("... " + production + " ...");
+        printer.println("s" + production.id() + " : " + production + " (s" + state.id() + ") { ... }");
     }
 
     @Override public String getYield() {

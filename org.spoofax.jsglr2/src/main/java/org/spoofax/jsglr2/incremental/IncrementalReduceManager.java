@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.incremental;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
@@ -62,9 +61,9 @@ public class IncrementalReduceManager
         List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(activeStack, reduce.arity());
 
         if(throughLink != null)
-            paths = paths.stream().filter(path -> path.contains(throughLink)).collect(Collectors.toList());
+            paths.removeIf(path -> !path.contains(throughLink));
 
-        if(paths.size() > 1)
+        if(reduceResultsInMultipleStates(paths, reduce.production().id()))
             parseState.setMultipleStates(true);
 
         for(StackPath<ParseForest, StackNode> path : paths) {
@@ -74,5 +73,21 @@ public class IncrementalReduceManager
             if(!ignoreReducePath(originStack, reduce, parseNodes))
                 reducer(observing, parseState, activeStack, originStack, reduce, parseNodes);
         }
+    }
+
+    private boolean reduceResultsInMultipleStates(List<StackPath<ParseForest, StackNode>> paths, int productionId) {
+        // If the number of reduce paths is not more than 1, the reduce does not result in multipleStates.
+        if(paths.size() <= 1)
+            return false;
+
+        // If multiple reduction paths lead to different goto states, then multipleStates should become true.
+        int commonGotoId = paths.get(0).head().state().getGotoId(productionId);
+        for(StackPath<ParseForest, StackNode> path : paths.subList(1, paths.size())) {
+            if(path.head().state().getGotoId(productionId) != commonGotoId)
+                return true;
+        }
+
+        // If multiple reduction paths lead all to the same goto state, then multipleStates does not need to change.
+        return false;
     }
 }

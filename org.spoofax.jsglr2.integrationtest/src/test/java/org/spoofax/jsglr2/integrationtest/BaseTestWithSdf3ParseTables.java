@@ -71,6 +71,10 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
         return parseTablesCache.get(sdf3Resource, variant);
     }
 
+    public String getNormalizedGrammar(boolean makePermissive) throws Exception {
+        return sdf3ToParseTable.getNormalizedGrammar(sdf3Resource, makePermissive);
+    }
+
     /**
      * Note the @TestFactory annotation, which makes sure that parse table consistency is checked for all test classes
      * that extend this class.

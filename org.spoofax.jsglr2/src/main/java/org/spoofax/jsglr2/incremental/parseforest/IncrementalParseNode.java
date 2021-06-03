@@ -27,7 +27,7 @@ public class IncrementalParseNode extends IncrementalParseForest
     protected final IProduction production;
     private IncrementalDerivation firstDerivation;
     private List<IncrementalDerivation> otherDerivations;
-    private IState state;
+    protected IState state;
 
     public IncrementalParseNode(IProduction production, IncrementalDerivation firstDerivation, IState state) {
         super(sumWidth(firstDerivation.parseForests()));
@@ -40,11 +40,11 @@ public class IncrementalParseNode extends IncrementalParseForest
         this(null, new IncrementalDerivation(null, null, parseForests), NO_STATE);
     }
 
-    protected IncrementalParseNode(int width, IProduction production) {
+    protected IncrementalParseNode(int width, IProduction production, IState state) {
         super(width);
         this.production = production;
         this.firstDerivation = null;
-        this.state = null;
+        this.state = state;
     }
 
     @Override public boolean isReusable() {
@@ -52,8 +52,13 @@ public class IncrementalParseNode extends IncrementalParseForest
     }
 
     @Override public boolean isReusable(IState stackState) {
+        if(production == null)
+            return false;
         // If state == NO_STATE, its ID is -1, and can in that case never equal the ID of stackState
-        return stackState.id() == state.id();
+        if(stackState.id() == state.id())
+            return true;
+        // If state == NO_STATE, it has no gotos, and the goto ID can in that case never equal the goto ID of stackState
+        return stackState.getGotoId(production.id(), -1) == state.getGotoId(production.id(), -2);
     }
 
     @Override public boolean isTerminal() {
@@ -103,7 +108,7 @@ public class IncrementalParseNode extends IncrementalParseForest
         if(production == null)
             printer.println("p null {");
         else
-            printer.println("p" + production.id() + " : " + production.lhs() + " { (s" + state.id() + ")");
+            printer.println("p" + production.id() + " : " + production.lhs() + " (s" + state.id() + ") {");
         if(isAmbiguous()) {
             printer.indent(1);
             printer.println("amb[");

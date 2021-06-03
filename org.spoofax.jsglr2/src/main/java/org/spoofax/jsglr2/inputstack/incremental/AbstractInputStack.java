@@ -15,7 +15,7 @@ public abstract class AbstractInputStack implements IInputStack {
         this.inputLength = inputString.length();
     }
 
-    @Override public abstract IInputStack clone();
+    @Override public abstract AbstractInputStack clone();
 
     @Override public String inputString() {
         return inputString;

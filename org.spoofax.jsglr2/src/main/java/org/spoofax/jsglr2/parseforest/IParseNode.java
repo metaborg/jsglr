@@ -13,6 +13,7 @@ public interface IParseNode
 //@formatter:on
     extends IParseForest {
 
+    /** Note that if a parse node has multiple derivations, this method returns only the production of the first one */
     IProduction production();
 
     void addDerivation(Derivation derivation);

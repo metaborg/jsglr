@@ -18,8 +18,18 @@ public class IncrementalRejectTest extends BaseTestWithSdf3ParseTables {
     @Disabled @TestFactory public Stream<DynamicTest> incrementalReject() throws ParseError {
         //@formatter:off
         return testIncrementalSuccessByExpansions(
-            new String[] { "foo", "for",         "foo" },
-            new String[] { "Foo", "Id(\"for\")", "Foo" }
+            new String[] { "foo",         "for",                 "foo" },
+            new String[] { "List([Foo])", "List([Id(\"for\")])", "List([Foo])" }
+        );
+        //@formatter:on
+    }
+
+    // TODO maybe disable??
+    @TestFactory public Stream<DynamicTest> incrementalRejectSplit() throws ParseError {
+        //@formatter:off
+        return testIncrementalSuccessByExpansions(
+            new String[] { "getbarkers",                 "return markers",                 "return" },
+            new String[] { "List([Id(\"getbarkers\")])", "List([Return,Id(\"markers\")])", "List([Return])" }
         );
         //@formatter:on
     }

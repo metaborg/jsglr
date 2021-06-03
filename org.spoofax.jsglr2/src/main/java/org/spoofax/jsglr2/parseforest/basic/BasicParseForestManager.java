@@ -45,7 +45,7 @@ public class BasicParseForestManager
     }
 
     @Override public IBasicParseNode<IBasicParseForest, IBasicDerivation<IBasicParseForest>>
-        createSkippedNode(ParseState parseState, IProduction production, IBasicParseForest[] parseForests) {
+        createSkippedNode(ParseState parseState, IStackNode stack, IProduction production, IBasicParseForest[] parseForests) {
         return new BasicParseNode<>(sumWidth(parseForests), production);
     }
 

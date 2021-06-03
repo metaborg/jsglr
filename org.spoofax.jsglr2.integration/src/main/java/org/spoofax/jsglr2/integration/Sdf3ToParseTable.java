@@ -32,6 +32,7 @@ import org.metaborg.spoofax.meta.core.SpoofaxMeta;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.HybridInterpreter;
 
 import com.google.common.collect.Iterables;
@@ -114,6 +115,11 @@ public class Sdf3ToParseTable {
         return ParseTableIO.generateATerm(parseTable);
     }
 
+    public String getNormalizedGrammar(String sdf3Resource, boolean makePermissive) throws Exception {
+        return TermUtils.toString(prettyPrint(sdf3ToNormalized("grammars/" + sdf3Resource, makePermissive)))
+            .stringValue();
+    }
+
     private NormGrammar normalizedGrammarFromSDF3(String sdf3Resource, boolean makePermissive, boolean withWater)
         throws Exception {
         NormGrammarReader normGrammarReader = new NormGrammarReader();
@@ -152,6 +158,10 @@ public class Sdf3ToParseTable {
 
     private IStrategoTerm makePermissive(IStrategoTerm sdf3Module) throws MetaborgException {
         return executeStratego(sdf3Module, "module-to-permissive");
+    }
+
+    private IStrategoTerm prettyPrint(IStrategoTerm sdf3Module) throws MetaborgException {
+        return executeStratego(sdf3Module, "pp-SDF3-string");
     }
 
     private IStrategoTerm executeStratego(IStrategoTerm input, String strategy) throws MetaborgException {

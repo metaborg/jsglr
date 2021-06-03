@@ -17,7 +17,7 @@ import static org.spoofax.jsglr2.JSGLR2Variant.Preset.*;
 public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[], IncrementalStringInput> {
 
     public enum ParserType {
-        Batch(false, new IntegrationVariant(standard.variant)),
+        Standard(false, new IntegrationVariant(standard.variant)),
         Elkhound(false, new IntegrationVariant(elkhound.variant)),
         Incremental(true, new IntegrationVariant(incremental.variant)),
         IncrementalNoCache(false, new IntegrationVariant(incremental.variant));
@@ -31,7 +31,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         }
     }
 
-    @Param({ "Batch", "Elkhound", "Incremental", "IncrementalNoCache" }) public ParserType parserType;
+    @Param({ "Standard", "Elkhound", "Incremental", "IncrementalNoCache" }) public ParserType parserType;
 
     @Param({ "-1" }) public int i;
 

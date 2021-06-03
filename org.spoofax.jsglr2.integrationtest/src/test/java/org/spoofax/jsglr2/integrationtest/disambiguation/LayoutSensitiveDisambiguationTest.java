@@ -44,6 +44,96 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> alignListSep1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "alignListSep s1,\n" +
+            "             s2",
+            "AlignListSep([\"s1\", \"s2\"])",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSep2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "alignListSep s1,\n" +
+            "             s2,\n" +
+            "             s3\n",
+            "AlignListSep([\"s1\", \"s2\", \"s3\"])",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSep3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "alignListSep\n" +
+            "s1\n" +
+            ",\n" +
+            "s2",
+            "AlignListSep([\"s1\", \"s2\"])",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSep4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "alignListSep s1\n" +
+            ",            s2\n" +
+            ",            s3\n",
+            "AlignListSep([\"s1\", \"s2\", \"s3\"])",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSepFail1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "alignListSep s1,s2",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSepFail2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "alignListSep\n" +
+            "s1\n" +
+            ",s2",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSepFail3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "alignListSep\n" +
+            "  s1\n" +
+            ",s2",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> alignListSepFail4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "alignListSep\n" +
+            "  s1\n" +
+            ",s2",
+            "AlignListSep"
+        );
+        //@formatter:on
+    }
+
 
     @TestFactory public Stream<DynamicTest> explicitAlignmentMisaligned1() throws ParseError {
         //@formatter:off
@@ -76,6 +166,63 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> explicitAlignment3Aligned1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "align3 s1 \n" +
+            "       s2\n" +
+            "       s3",
+            "Align3(\"s1\", \"s2\", \"s3\")",
+            "Align3"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> explicitAlignment3Aligned2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "align3\n" +
+            "s1\n" +
+            "s2\n" +
+            "s3",
+            "Align3(\"s1\", \"s2\", \"s3\")",
+            "Align3"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> explicitAlignment3Aligned3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "align3 s1\n\n" +
+            "       s2\n\n\n" +
+            "       s3\n",
+            "Align3(\"s1\", \"s2\", \"s3\")",
+            "Align3"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> explicitAlignment3Misaligned1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "align3 s1 \n" +
+            "      s2\n" +
+            "       s3",
+            "Align3"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> explicitAlignment3Misaligned2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "align3 s1 s2\n" +
+            "       s3",
+            "Align3"
+        );
+        //@formatter:on
+    }
 
     @TestFactory public Stream<DynamicTest> offsideExpression1() throws ParseError {
         //@formatter:off
@@ -172,6 +319,94 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressions1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "indent2 e1 e2",
+            "Indent2(\"e1\", \"e2\")",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressions2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "indent2 e1\n" +
+            " e2",
+            "Indent2(\"e1\", \"e2\")",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressions3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "indent2\n" +
+            "  e1\n" +
+            " e2",
+            "Indent2(\"e1\", \"e2\")",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressions4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "indent2\n" +
+            " e1\n\n" +
+            "  e2",
+            "Indent2(\"e1\", \"e2\")",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressions5() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "indent2\n" +
+            " e1 e2",
+            "Indent2(\"e1\", \"e2\")",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressionsFailed1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "indent2 e1\n" +
+            "e2",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressionsFailed2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "indent2\n" +
+            "e1\n" +
+            " e2",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> indentMultipleExpressionsFailed3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "indent2\n" +
+            " e1\n" +
+            "e2",
+            "Indent2"
+        );
+        //@formatter:on
+    }
+
     @TestFactory public Stream<DynamicTest> newlineIndentExpressionNoNewline() throws ParseError {
         //@formatter:off
         return testLayoutSensitiveParseFiltered(
@@ -202,6 +437,103 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressions1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "NLindent2\n" +
+            " e1 e2",
+            "NLIndent2(\"e1\", \"e2\")",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressions2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "NLindent2\n" +
+            " e1\n" +
+            " e2",
+            "NLIndent2(\"e1\", \"e2\")",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressions3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "NLindent2\n" +
+            " e1\n" +
+            "  e2",
+            "NLIndent2(\"e1\", \"e2\")",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressions4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "NLindent2\n" +
+            "  e1\n" +
+            " e2",
+            "NLIndent2(\"e1\", \"e2\")",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressionsFailed1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "NLindent2 e1 e2",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressionsFailed2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "NLindent2 e1\n" +
+            " e2",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressionsFailed3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "NLindent2\n" +
+            "e1" +
+            " e2",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressionsFailed4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "NLindent2\n" +
+            "e1 e2",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> newlineIndentMultipleExpressionsFailed5() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "NLindent2\n" +
+            " e1\n" +
+            "e2",
+            "NLIndent2"
+        );
+        //@formatter:on
+    }
 
     @TestFactory public Stream<DynamicTest> singleLine() throws ParseError {
         //@formatter:off
@@ -260,4 +592,229 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         //@formatter:on
     }
 
+    @TestFactory public Stream<DynamicTest> notSingleLine1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "foo\nbar",
+            "NotSingleLine()",
+            "NotSingleLine"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> notSingleLine2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "\n\nfoo\n\n\nbar\n",
+            "NotSingleLine()",
+            "NotSingleLine"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> notSingleLineSingleLine() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "foo bar",
+            "NotSingleLine"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombined1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "if e1 + e2:\n" +
+            " s1",
+            "TemplateCombined(Add(\"e1\", \"e2\"), [\"s1\"])",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombined2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "if e1:\n" +
+            " s1\n" +
+            " s2\n" +
+            " s3\n",
+            "TemplateCombined(\"e1\", [\"s1\", \"s2\", \"s3\"])",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1:\n" +
+            " s1\n" +
+            "  s2\n" +
+            " s3\n",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1: s1",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1:\n" +
+            "s1",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail4() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1: s1\n" +
+            "       s2",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail5() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1\n" +
+            ":\n" +
+            " s1",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail6() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1 +\n" +
+            "e2: \n" +
+            "   s2",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail7() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if\n" +
+            "  e1:\n" +
+            "     s2",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> templateCombinedFail8() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "if e1:\n" +
+            "s1\n" +
+            "s2",
+            "TemplateCombined"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> tokenized1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "colon:",
+            "Tokenized()",
+            "Tokenized"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> tokenized2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "colon     :",
+            "Tokenized()",
+            "Tokenized"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> tokenized3() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "\ncolon     :\n",
+            "Tokenized()",
+            "Tokenized"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> tokenizedFail1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "colon\n:",
+            "Tokenized"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> tokenizedFail2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "\ncolon  \n     :\n",
+            "Tokenized"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlign1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "opt-align",
+            "OptionalAlign(None())",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlign2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "opt-align\n" +
+            "some",
+            "OptionalAlign(Some(Optional()))",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlignFail1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "opt-align some",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlignFail2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "opt-align\n" +
+            " some",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
 }

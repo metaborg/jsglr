@@ -777,4 +777,44 @@ public class LayoutSensitiveDisambiguationTest extends BaseTestWithLayoutSensiti
         );
         //@formatter:on
     }
+
+    @TestFactory public Stream<DynamicTest> optionalAlign1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "opt-align",
+            "OptionalAlign(None())",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlign2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveSuccessByExpansions(
+            "opt-align\n" +
+            "some",
+            "OptionalAlign(Some(Optional()))",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlignFail1() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "opt-align some",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
+
+    @TestFactory public Stream<DynamicTest> optionalAlignFail2() throws ParseError {
+        //@formatter:off
+        return testLayoutSensitiveParseFiltered(
+            "opt-align\n" +
+            " some",
+            "OptionalAlign"
+        );
+        //@formatter:on
+    }
 }

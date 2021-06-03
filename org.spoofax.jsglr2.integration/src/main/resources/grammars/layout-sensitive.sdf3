@@ -16,6 +16,7 @@ context-free start-symbols
   NotSingleLine
   TemplateCombined
   Tokenized
+  OptionalAlign
 
 template options
 
@@ -56,6 +57,9 @@ context-free syntax
   > {layout(single-line "if" ":" && align-list stmts && newline-indent "if" stmts)}
 
   Tokenized.Tokenized = <colon:> {layout(single-line "colon" ":")}
+
+  OptionalAlign.OptionalAlign = "opt-align" opt:Optional? {layout(align "opt-align" opt)}
+  Optional.Optional = "some"
 
   Exp.Add = Exp "+" Exp {left}
 

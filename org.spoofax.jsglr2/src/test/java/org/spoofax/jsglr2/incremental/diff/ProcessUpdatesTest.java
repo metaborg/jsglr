@@ -22,7 +22,7 @@ public class ProcessUpdatesTest {
     @Test public void testDeleteSubtree() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3), node(4, 5));
 
-        IncrementalParseNode expected = node(node(0, 1), node(4, 5));
+        IncrementalParseNode expected = node(node(0, node(node(1))), node(4, 5));
 
         testUpdate(previous, expected, new EditorUpdate(2, 4, ""));
     }
@@ -70,7 +70,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplace() {
         IncrementalParseNode previous = node(node(0, 1), node(2, 3));
 
-        IncrementalParseNode expected = node(node(node(0), node(4, 5)), node(2, 3));
+        IncrementalParseNode expected = node(node(node(node(0)), node(4, 5)), node(2, 3));
 
         testUpdate(previous, expected, new EditorUpdate(1, 2, "\4\5"));
     }
@@ -94,7 +94,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplaceEnd() {
         IncrementalParseNode previous = node(node(node(0, 1), node(2)), node(3));
 
-        IncrementalParseNode expected = node(node(node(0, 1), node(4, 5, 6)));
+        IncrementalParseNode expected = node(node(node(0, node(node(1))), node(4, 5, 6)));
 
         testUpdate(previous, expected, new EditorUpdate(2, 4, "\4\5\6"));
     }
@@ -102,7 +102,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplaceMultipleWithGap() {
         IncrementalParseNode previous = node(node(node(0, 1), node(2)), node(3));
 
-        IncrementalParseNode expected = node(node(node(node(0), node(4, 5)), node(2)), node(6, 7));
+        IncrementalParseNode expected = node(node(node(node(node(0)), node(4, 5)), node(node(2))), node(6, 7));
 
         testUpdate(previous, expected, new EditorUpdate(1, 2, "\4\5"), new EditorUpdate(3, 4, "\6\7"));
     }
@@ -110,7 +110,7 @@ public class ProcessUpdatesTest {
     @Test public void testReplaceMultipleWithoutGap() {
         IncrementalParseNode previous = node(node(node(0, 1), node(2)), node(3));
 
-        IncrementalParseNode expected = node(node(node(node(0), node(4, 5)), node(6, 7)), node(3));
+        IncrementalParseNode expected = node(node(node(node(node(0)), node(4, 5)), node(6, 7)), node(3));
 
         testUpdate(previous, expected, new EditorUpdate(1, 2, "\4\5"), new EditorUpdate(2, 3, "\6\7"));
     }
@@ -135,6 +135,10 @@ public class ProcessUpdatesTest {
 
     private static IncrementalParseNode node(IncrementalParseForest... children) {
         return new IncrementalParseNode(children);
+    }
+
+    private static IncrementalParseNode node(int first, IncrementalParseForest second) {
+        return new IncrementalParseNode(new IncrementalCharacterNode(first), second);
     }
 
     private static IncrementalParseNode node() {

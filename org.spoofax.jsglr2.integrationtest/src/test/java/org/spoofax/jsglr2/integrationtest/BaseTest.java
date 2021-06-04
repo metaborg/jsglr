@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
+import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.spoofax.terms.util.TermUtils.*;
@@ -10,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.ParseTableVariant;
@@ -20,22 +23,23 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr2.JSGLR2;
-import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.JSGLR2Result;
-import org.spoofax.jsglr2.JSGLR2Success;
+import org.spoofax.jsglr2.*;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
 import org.spoofax.jsglr2.integration.WithParseTable;
 import org.spoofax.jsglr2.messages.Message;
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.Position;
+import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.Reconstruction;
 import org.spoofax.jsglr2.util.AstUtilities;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -79,7 +83,7 @@ public abstract class BaseTest implements WithParseTable {
             return variant.name() + "(parseTableOrigin:" + parseTableWithOrigin.origin + ")";
         }
 
-        IParser<?> parser() {
+        IParser<? extends IParseForest> parser() {
             return variant.parser.getParser(parseTableWithOrigin.parseTable);
         }
 
@@ -143,7 +147,8 @@ public abstract class BaseTest implements WithParseTable {
         return testPerVariant(variants, variant -> () -> {
             ParseResult<?> parseResult = variant.parser().parse(getRequest(inputString));
 
-            assertEquals(true, parseResult.isSuccess(), "Parsing failed");
+            assertEquals(true, parseResult.isSuccess(), parseResult instanceof ParseFailure
+                ? "Parsing failed: " + ((ParseFailure<?>) parseResult).failureCause.causeMessage() : "Parsing failed");
         });
     }
 
@@ -281,6 +286,21 @@ public abstract class BaseTest implements WithParseTable {
         });
     }
 
+    protected Stream<DynamicTest> testIncrementalSuccessByBatch(String... inputs) throws ParseError {
+        IntegrationVariant batchVariant =
+            new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.standard.variant);
+        JSGLR2<IStrategoTerm> batchJSGLR2 =
+            new TestVariant(batchVariant, getParseTablesOrFailOnException(batchVariant.parseTable).iterator().next())
+                .jsglr2();
+
+        String[] expectedOutputAstStrings = new String[inputs.length];
+        for(int i = 0; i < inputs.length; i++) {
+            expectedOutputAstStrings[i] = batchJSGLR2.parse(inputs[i]).toString();
+        }
+
+        return testIncrementalSuccessByExpansions(inputs, expectedOutputAstStrings);
+    }
+
     protected void assertEqualAST(String message, IStrategoTerm expected, IStrategoTerm actual) {
         assertEqualAST(message, expected, actual, expected, actual);
     }
@@ -365,6 +385,109 @@ public abstract class BaseTest implements WithParseTable {
             && expectedRight.getColumn() == actualRight.getColumn()
             && expectedLeft.getEndColumn() == actualLeft.getEndColumn()
             && expectedRight.getEndColumn() == actualRight.getEndColumn();
+    }
+
+    protected Stream<DynamicTest> testParseNodeReuse(String inputString1, String inputString2,
+        ParseNodeDescriptor... parseNodeDescriptors) {
+        return testPerVariant(getTestVariants(isIncrementalVariant), variant -> () -> {
+            ParseNodeDescriptor[] filteredDescriptors = Arrays.stream(parseNodeDescriptors)
+                .filter(parseNodeDescriptor -> parseNodeDescriptor.onlyForFullForest == null
+                    || parseNodeDescriptor.onlyForFullForest == isNonOptimizedParseForestVariant.test(variant))
+                .toArray(ParseNodeDescriptor[]::new);
+
+            @SuppressWarnings("unchecked") IParser<IParseForest> parser = (IParser<IParseForest>) variant.parser();
+            ParseResult<IParseForest> parse1 = parser.parse(inputString1);
+            assertTrue(parse1.isSuccess(), "Parse 1 of " + inputString1 + " failed!");
+            IParseForest parseForest1 = ((ParseSuccess<?>) parse1).parseResult;
+            ParseResult<IParseForest> parse2 = parser.parse(inputString2, inputString1, parseForest1);
+            assertTrue(parse2.isSuccess(), "Parse 2 of " + inputString2 + " failed!");
+            IParseForest parseForest2 = ((ParseSuccess<?>) parse2).parseResult;
+
+            Map<IParseForest, IParseNode<?, ?>> cache = populateCache(parseForest1);
+            Map<IParseForest, Integer> offsets = calculateOffsets(parseForest1);
+            List<IParseNode<?, ?>> reused = checkReuse(cache, parseForest2);
+            assertEquals(filteredDescriptors.length, reused.size(),
+                "Length of reused nodes not equal! Reused: [\n" + reused.stream()
+                    .map(n -> "  offset " + offsets.get(n) + ", width " + n.width() + ", symbol "
+                        + n.production().lhs().descriptor() + "." + n.production().constructor() + ":\n    "
+                        + n.toString().replaceAll("\n", "\n    "))
+                    .collect(Collectors.joining("\n")) + "\n]");
+            for(int i = 0; i < filteredDescriptors.length; i++) {
+                IParseNode<?, ?> node = reused.get(i);
+                assertEquals(filteredDescriptors[i].offset, (int) offsets.get(reused.get(i)),
+                    "Offsets do not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].width, node.width(),
+                    "Width does not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].sort, node.production().lhs().descriptor(),
+                    "Sort does not match for " + filteredDescriptors[i]);
+                assertEquals(filteredDescriptors[i].cons, node.production().constructor(),
+                    "Cons does not match for " + filteredDescriptors[i]);
+            }
+        });
+    }
+
+    private Map<IParseForest, IParseNode<?, ?>> populateCache(IParseForest parseForest) {
+        Map<IParseForest, IParseNode<?, ?>> cache = new IdentityHashMap<>();
+        Queue<IParseForest> queue = new LinkedList<>();
+        queue.add(parseForest);
+        while(!queue.isEmpty()) {
+            IParseForest current = queue.poll();
+            if(current instanceof IParseNode) {
+                cache.put(current, (IParseNode<?, ?>) current);
+            }
+            queue.addAll(Arrays.asList(getChildren(current)));
+        }
+        return cache;
+    }
+
+    private Map<IParseForest, Integer> calculateOffsets(IParseForest parseForest) {
+        Map<IParseForest, Integer> offsets = new IdentityHashMap<>();
+        offsets.put(parseForest, 0);
+        Queue<IParseForest> queue = new LinkedList<>();
+        queue.add(parseForest);
+        while(!queue.isEmpty()) {
+            IParseForest current = queue.poll();
+            int offset = offsets.get(current);
+            for(IParseForest child : getChildren(current)) {
+                offsets.put(child, offset);
+                offset += child.width();
+                queue.add(child);
+            }
+        }
+        return offsets;
+    }
+
+    private List<IParseNode<?, ?>> checkReuse(Map<IParseForest, IParseNode<?, ?>> cache, IParseForest parseForest) {
+        List<IParseNode<?, ?>> reused = new ArrayList<>();
+        Stack<IParseForest> stack = new Stack<>();
+        stack.add(parseForest);
+        while(!stack.isEmpty()) {
+            IParseForest current = stack.pop();
+            if(current instanceof IParseNode) {
+                if(cache.containsKey(current)) {
+                    reused.add((IParseNode<?, ?>) current);
+                    continue;
+                }
+            }
+            IParseForest[] children = getChildren(current);
+            ArrayUtils.reverse(children);
+            stack.addAll(Arrays.asList(children));
+        }
+        return reused;
+    }
+
+    private static IParseForest[] EMPTY_CHILDREN = new IParseForest[0];
+
+    protected static IParseForest[] getChildren(IParseForest parseForest) {
+        if(parseForest instanceof IParseNode)
+            return getChildren(((IParseNode<?, ?>) parseForest));
+        return EMPTY_CHILDREN;
+    }
+
+    private static IParseForest[] getChildren(IParseNode<?, ?> parseNode) {
+        if(isEmpty(parseNode.getDerivations()))
+            return EMPTY_CHILDREN;
+        return parseNode.getFirstDerivation().parseForests();
     }
 
     protected void assertEqualAST(String message, String expectedOutputAstString, IStrategoTerm actualOutputAst,

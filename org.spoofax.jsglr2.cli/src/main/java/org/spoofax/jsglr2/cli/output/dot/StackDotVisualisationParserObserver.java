@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
+import org.metaborg.parsetable.actions.IReduce;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -83,6 +84,28 @@ class StackDotVisualisationParserObserver
         this.acceptingStack = acceptingStack;
     }
 
+    @Override public void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
+        ParseForest[] parseNodes, StackNode gotoStack) {
+        doStackCreation(activeStack, gotoStack);
+    }
+
+    @Override public void shift(ParseState parseState, StackNode originStack, StackNode gotoStack) {
+        doStackCreation(originStack, gotoStack);
+    }
+
+    private void doStackCreation(StackNode activeStack, StackNode gotoStack) {
+        int rank1 = stackNodeRank.get(activeStack);
+        int rank2 = stackNodeRank.get(gotoStack);
+        if(rank1 > rank2) {
+            stackNodeRank.put(gotoStack, rank1);
+        }
+        boolean sameRank = rank1 >= rank2;
+        String pos1 = sameRank ? ":p:s" : ":p:e";
+        String pos2 = sameRank ? ":p:n" : ":p:w";
+        dotStatement(stackNodeId(activeStack) + pos1 + " -> " + stackNodeId(gotoStack) + pos2
+            + " [style=dashed,constraint=false,dir=forward];\n");
+    }
+
     private String stackNodeId(StackNode stack) {
         return stackNodeId(id(stack));
     }
@@ -133,7 +156,10 @@ class StackDotVisualisationParserObserver
             }
 
             dotStatement("{rank=same; "
-                + stackNodesForRank.stream().map(id -> stackNodeId(id) + ";").collect(Collectors.joining()) + "}");
+                + stackNodesForRank.stream().map(this::stackNodeId)
+                    .sorted(Comparator.comparingInt(s -> Integer.parseInt(s.substring(6))))
+                    .collect(Collectors.joining("->"))
+                + (stackNodesForRank.size() == 1 ? "" : "[style=invis]") + "; rankdir=TB}");
         }
 
         return prefix + dotStatements + "}";

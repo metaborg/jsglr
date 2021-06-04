@@ -8,6 +8,9 @@ public interface IIncrementalInputStack extends IInputStack {
 
     void breakDown();
 
+    /** Returns whether the lookahead of the node returned by {@link #getNode()} is unchanged. */
+    boolean lookaheadIsUnchanged();
+
     IIncrementalInputStack clone();
 
     default boolean hasNext() {

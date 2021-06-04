@@ -54,7 +54,7 @@ public class DataDependentParseForestManager
 
     @Override public
         IDataDependentParseNode<IDataDependentParseForest, IDataDependentDerivation<IDataDependentParseForest>>
-        createSkippedNode(ParseState parseState, IProduction production, IDataDependentParseForest[] parseForests) {
+        createSkippedNode(ParseState parseState, IStackNode stack, IProduction production, IDataDependentParseForest[] parseForests) {
         return new DataDependentParseNode<>(sumWidth(parseForests), production);
     }
 

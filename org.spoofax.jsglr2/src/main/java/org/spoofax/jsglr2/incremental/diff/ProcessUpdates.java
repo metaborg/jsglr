@@ -27,11 +27,9 @@ public class ProcessUpdates
 //@formatter:on
 {
 
-    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> observing;
     private final IncrementalParseForestManager<StackNode, ParseState> parseForestManager;
 
     public ProcessUpdates(IncrementalParseForestManager<StackNode, ParseState> parseForestManager) {
-        this.observing = new ParserObserving<>();
         this.parseForestManager = parseForestManager;
     }
 
@@ -79,13 +77,6 @@ public class ProcessUpdates
     private IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest currentForest,
         int currentOffset, LinkedList<EditorUpdate> updates) {
         if(currentForest.isTerminal()) {
-            if(currentForest instanceof IncrementalSkippedNode) {
-                // First explicitly instantiate all skipped character nodes before applying updates
-                return processUpdates(previousInput,
-                    getParseNodeFromString(
-                        previousInput.substring(currentOffset, currentOffset + currentForest.width())),
-                    currentOffset, updates);
-            }
             EditorUpdate update = updates.getFirst();
             int deletedStartOffset = update.deletedStart;
             int deletedEndOffset = update.deletedEnd;
@@ -113,6 +104,10 @@ public class ProcessUpdates
                     updates.removeFirst();
                 return getParseNodeFromString(inserted);
             }
+            // The character right before the change should be marked as changed as well
+            if(currentOffset + currentForest.width() == deletedStartOffset) {
+                return newParseNodeFromChildren(currentForest);
+            }
             // Else: delete all characters within deletion range
             if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
                 if(currentOffset == deletedEndOffset - currentForest.width())
@@ -121,6 +116,12 @@ public class ProcessUpdates
             }
             // If none of the cases applies: just return original character node
             return currentForest;
+        }
+        if(currentForest instanceof IncrementalSkippedNode) {
+            // First explicitly instantiate all skipped character nodes before applying updates
+            return processUpdates(previousInput,
+                getParseNodeFromString(previousInput.substring(currentOffset, currentOffset + currentForest.width())),
+                currentOffset, updates);
         }
         // Use a shallow copy of the current children, else the old children array will be modified
         IncrementalParseForest[] parseForests =

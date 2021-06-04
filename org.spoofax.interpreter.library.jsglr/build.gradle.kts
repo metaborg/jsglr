@@ -3,14 +3,16 @@ plugins {
   id("org.metaborg.gradle.config.junit-testing")
 }
 
+fun compositeBuild(name: String) = "$group:$name:$version"
+val spoofax2Version: String by ext
 dependencies {
-  // api(platform("org.metaborg:parent:$version")) // Can't use: causes dependency cycle because parent mentions pie.
+  api(platform("org.metaborg:parent:$spoofax2Version"))
 
   api(project(":org.spoofax.jsglr"))
   api(project(":org.spoofax.jsglr2"))
-  api("org.metaborg:org.spoofax.interpreter.core:$version")
-  testCompileOnly("junit:junit:4.13.1")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
+  api(compositeBuild("org.spoofax.interpreter.core"))
+  testCompileOnly("junit:junit")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.

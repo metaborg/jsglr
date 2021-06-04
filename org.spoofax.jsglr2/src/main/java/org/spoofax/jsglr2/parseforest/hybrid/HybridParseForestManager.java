@@ -64,7 +64,7 @@ public class HybridParseForestManager
             disambiguator.disambiguate(parseState, parseNode);
     }
 
-    @Override public HybridParseNode createSkippedNode(ParseState parseState, IProduction production,
+    @Override public HybridParseNode createSkippedNode(ParseState parseState, IStackNode stack, IProduction production,
         HybridParseForest[] parseForests) {
         return new HybridParseNode(sumWidth(parseForests), production);
     }

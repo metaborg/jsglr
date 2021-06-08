@@ -1,13 +1,16 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
+import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
+
 import java.util.List;
 
-import org.metaborg.util.functions.Function4;
+import org.metaborg.util.functions.Function5;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 
 /**
  * This type of incremental input stack processes the list of updates during parsing, instead of having a preprocessing
@@ -20,6 +23,9 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 public abstract class AbstractIncrementalInputStack extends AbstractPreprocessingIncrementalInputStack
     implements IIncrementalInputStack {
 
+    // TODO move this field to parent class
+    private final ParserObserving<?, ?, ?, ?, ?> observing;
+
     private final String previousInput;
     private final List<EditorUpdate> editorUpdates;
     private int currentUpdateIndex = 0;
@@ -31,6 +37,7 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     AbstractIncrementalInputStack(AbstractIncrementalInputStack original) {
         super(original);
 
+        this.observing = original.observing;
         this.previousInput = original.previousInput;
         this.editorUpdates = original.editorUpdates;
         this.currentUpdateIndex = original.currentUpdateIndex;
@@ -40,8 +47,10 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     }
 
     public AbstractIncrementalInputStack(String input, String previousInput, IncrementalParseForest previousResult,
-        List<EditorUpdate> editorUpdates) {
+        List<EditorUpdate> editorUpdates, ParserObserving<?, ?, ?, ?, ?> observing) {
         super(previousResult, input);
+
+        this.observing = observing;
 
         this.previousInput = previousInput;
         this.editorUpdates = editorUpdates;
@@ -55,8 +64,8 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     }
 
     static IncrementalInputStackFactory<IIncrementalInputStack> factoryBuilder(IStringDiff diff,
-        Function4<String, String, IncrementalParseForest, List<EditorUpdate>, IIncrementalInputStack> constructor) {
-        return (inputString, previousInput, previousResult) -> {
+        Function5<String, String, IncrementalParseForest, List<EditorUpdate>, ParserObserving<?, ?, ?, ?, ?>, IIncrementalInputStack> constructor) {
+        return (inputString, previousInput, previousResult, observing) -> {
             if(previousInput == null || previousResult == null)
                 return new StringIncrementalInputStack(inputString);
 
@@ -67,11 +76,11 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
                 && editorUpdates.get(0).deletedEnd == previousResult.width())
                 return new StringIncrementalInputStack(inputString);
 
-            return constructor.apply(inputString, previousInput, previousResult, editorUpdates);
+            return constructor.apply(inputString, previousInput, previousResult, editorUpdates, observing);
         };
     }
 
-    @Override public void breakDown() {
+    @Override public void breakDown(BreakdownReason breakdownReason) {
         do {
             if(stack.isEmpty())
                 return;
@@ -79,6 +88,9 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
             IncrementalParseForest current = stack.peek();
             if(current.isTerminal())
                 return;
+
+            BreakdownReason finalBreakdownReason = breakdownReason;
+            observing.notify(observer -> observer.breakDown(this, finalBreakdownReason));
 
             stack.pop(); // always pop last lookahead, whether it has children or not
 
@@ -97,6 +109,13 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
 
             if(updateIsAtStartOfNextNode())
                 updateIsExposed = true;
+
+            breakdownReason = BreakdownReason.HAS_CHANGE; // In case we need to loop
+
+            // The call to breakDown() from `IncrementalParser` usually only needs to break down a single parse node,
+            // because parse nodes can only get smaller and the current offset will not change,
+            // so the children of the broken-down parse node don't suddenly accidentally expose an update.
+            // HOWEVER, when the broken-down node has NO children, the next parse node on the stack CAN contain changes.
         } while(currentNodeHasChange());
     }
 
@@ -129,20 +148,39 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
         if(currentUpdate != null && currentOffsetInPrevious == currentUpdate.deletedStart) {
             while(currentOffsetInPrevious < currentUpdate.deletedEnd)
                 if(currentOffsetInPrevious + stack.peek().width() > currentUpdate.deletedEnd)
-                    breakDown();
-                else
+                    breakDown(BreakdownReason.HAS_CHANGE);
+                else {
+                    // By default, the observer does not count the children of the popped node.
+                    observing.notify(observer -> observer.breakDown(this, BreakdownReason.HAS_CHANGE));
+                    // The observer call below DOES count them, but that's disabled because its calculation is slow.
+                    // observing.notify(observer -> {
+                    // Stack<IncrementalParseForest> toCheck = new Stack<>();
+                    // toCheck.add(stack.peek());
+                    // while(!toCheck.isEmpty()) {
+                    // IncrementalParseForest current = toCheck.pop();
+                    // if(!current.isTerminal()) {
+                    // observer.breakDown(this, BreakdownReason.HAS_CHANGE);
+                    // toCheck.addAll(Arrays
+                    // .asList(((IncrementalParseNode) current).getFirstDerivation().parseForests()));
+                    // }
+                    // }
+                    // });
                     currentOffsetInPrevious += stack.pop().width();
+                }
             // Also delete any null-yield trees at position `currentUpdate.deletedEnd`
-            while(stack.peek().width() == 0)
+            while(stack.peek().width() == 0) {
+                observing.notify(observer -> observer.breakDown(this, BreakdownReason.HAS_CHANGE));
                 stack.pop();
+            }
             currentOffsetInPrevious -= currentUpdate.insertedLength();
             pushCharactersToStack(currentUpdate.inserted);
             currentUpdate = ++currentUpdateIndex >= editorUpdates.size() ? null : editorUpdates.get(currentUpdateIndex);
             updateIsExposed = false;
         }
 
+        // while(currentNodeHasChange() && !getNode().isTerminal()) // This already loops inside breakDown()
         if(currentNodeHasChange())
-            breakDown();
+            breakDown(BreakdownReason.HAS_CHANGE);
     }
 
     private boolean currentNodeHasChange() {

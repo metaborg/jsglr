@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 /**
@@ -56,7 +57,7 @@ public abstract class AbstractPreprocessingIncrementalInputStack extends Abstrac
 
     @Override public abstract AbstractPreprocessingIncrementalInputStack clone();
 
-    @Override public void breakDown() {
+    @Override public void breakDown(BreakdownReason breakdownReason) {
         if(stack.isEmpty())
             return;
 

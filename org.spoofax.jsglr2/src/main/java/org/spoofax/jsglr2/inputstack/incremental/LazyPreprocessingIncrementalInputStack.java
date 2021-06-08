@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.*;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
@@ -35,7 +36,7 @@ public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack i
     public static <StackNode extends IStackNode, ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
         IncrementalInputStackFactory<IIncrementalInputStack>
         factory(IStringDiff diff, ProcessUpdates<StackNode, ParseState> processUpdates) {
-        return (inputString, previousInput, previousResult) -> new LazyPreprocessingIncrementalInputStack(
+        return (inputString, previousInput, previousResult, observing) -> new LazyPreprocessingIncrementalInputStack(
             preProcessParseForest(processUpdates, diff, inputString, previousInput, previousResult), inputString);
     }
 
@@ -55,7 +56,7 @@ public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack i
         return last;
     }
 
-    @Override public void breakDown() {
+    @Override public void breakDown(BreakdownReason breakdownReason) {
         if(stack.isEmpty())
             last = null;
         if(last == null || last.isTerminal())

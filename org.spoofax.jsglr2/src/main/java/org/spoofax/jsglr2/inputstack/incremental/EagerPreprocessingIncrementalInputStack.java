@@ -20,7 +20,7 @@ public class EagerPreprocessingIncrementalInputStack extends AbstractPreprocessi
     public static <StackNode extends IStackNode, ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
         IncrementalInputStackFactory<IIncrementalInputStack>
         factory(IStringDiff diff, ProcessUpdates<StackNode, ParseState> processUpdates) {
-        return (inputString, previousInput, previousResult) -> new EagerPreprocessingIncrementalInputStack(
+        return (inputString, previousInput, previousResult, observing) -> new EagerPreprocessingIncrementalInputStack(
             preProcessParseForest(processUpdates, diff, inputString, previousInput, previousResult), inputString);
     }
 

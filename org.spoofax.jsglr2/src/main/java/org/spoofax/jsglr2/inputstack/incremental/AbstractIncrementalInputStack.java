@@ -57,19 +57,17 @@ public abstract class AbstractIncrementalInputStack extends AbstractPreprocessin
     static IncrementalInputStackFactory<IIncrementalInputStack> factoryBuilder(IStringDiff diff,
         Function4<String, String, IncrementalParseForest, List<EditorUpdate>, IIncrementalInputStack> constructor) {
         return (inputString, previousInput, previousResult) -> {
-            if(previousInput != null && previousResult != null) {
-                List<EditorUpdate> editorUpdates = diff.diff(previousInput, inputString);
+            if(previousInput == null || previousResult == null)
+                return new StringIncrementalInputStack(inputString);
 
-                // Optimization: if everything is deleted/replaced, then start a batch parse
-                if(editorUpdates.size() == 1 && editorUpdates.get(0).deletedStart == 0
-                    && editorUpdates.get(0).deletedEnd == previousResult.width()) {
-                    return new StringIncrementalInputStack(inputString);
-                }
+            List<EditorUpdate> editorUpdates = diff.diff(previousInput, inputString);
 
-                return constructor.apply(inputString, previousInput, previousResult, editorUpdates);
-            }
+            // Optimization: if everything is deleted/replaced, then start a batch parse
+            if(editorUpdates.size() == 1 && editorUpdates.get(0).deletedStart == 0
+                && editorUpdates.get(0).deletedEnd == previousResult.width())
+                return new StringIncrementalInputStack(inputString);
 
-            return new StringIncrementalInputStack(inputString);
+            return constructor.apply(inputString, previousInput, previousResult, editorUpdates);
         };
     }
 

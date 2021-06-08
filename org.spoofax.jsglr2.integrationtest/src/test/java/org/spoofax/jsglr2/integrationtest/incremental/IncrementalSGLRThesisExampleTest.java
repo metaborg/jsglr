@@ -202,6 +202,10 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
         if(parseForest instanceof IParseNode) {
             IParseNode<?, ?> parseNode = (IParseNode<?, ?>) parseForest;
             IProduction production = parseNode.production();
+            IParseForest parent = ids.keySet().stream()
+                .filter(n -> n instanceof IParseNode && Arrays
+                    .stream(((IParseNode<?, ?>) n).getFirstDerivation().parseForests()).anyMatch(c -> c == parseForest))
+                .findFirst().orElse(null);
             System.out.print("node" + (id > originalSize ? "[new]" : "") + " (" + id + ") {"
                 + (production == null ? ""
                     : ((ParseTableProduction) production).getProduction().leftHand() + (production.constructor() == null
@@ -214,8 +218,8 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
                 System.out.print(" ");
             for(IParseForest child : children) {
                 printIndent(indent);
-                String opt = isExp(child) ? "[level distance=6em]"
-                    : (isExp(parseForest)) ? "[level distance=3em]" : id == 50 ? "[sibling distance=4em]" : "";
+                String opt = isExp(parseForest) ? "[level distance=6em]"
+                    : isExp(parent) ? "[level distance=3em]" : id == 50 ? "[sibling distance=4em]" : "";
                 System.out.print("child" + opt + " { ");
                 printLaTeX(child, ids, originalSize, indent + 8);
                 System.out.println("}");
@@ -365,7 +369,7 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
         System.out.println();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     static class ShiftReduceBreakdownObserver implements IParserObserver {
         @Override public void forActorStacks(IForActorStacks forActorStacks) {
             System.out.println("Starting parse round with stacks\n[" + Iterables2.stream(forActorStacks)

@@ -10,6 +10,7 @@ import org.metaborg.parsetable.ParseTableVariant;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
+import org.metaborg.sdf2table.grammar.ISymbol;
 import org.metaborg.sdf2table.parsetable.LRItem;
 import org.metaborg.sdf2table.parsetable.ParseTableProduction;
 import org.metaborg.sdf2table.parsetable.State;
@@ -21,7 +22,6 @@ import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.integrationtest.BaseTest;
@@ -157,12 +157,12 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     static void printParseForestAndAST() throws Exception {
         BaseTestWithSdf3ParseTables.setup();
-        IParser<? extends IParseForest> parser = getParser(new IncrementalSGLRThesisExampleTest());
+        IParser<IParseForest> parser = getParser(new IncrementalSGLRThesisExampleTest());
 
         System.out.println("# Parse Forest of input `" + identifier1 + "`:");
-        ParseResult<? extends IParseForest> parse = parser.parse(identifier1);
+        ParseResult<IParseForest> parse = parser.parse(identifier1);
         assert parse.isSuccess();
-        IParseForest parseForest = ((ParseSuccess<?>) parse).parseResult;
+        IParseForest parseForest = ((ParseSuccess<IParseForest>) parse).parseResult;
         printLaTeX(parseForest);
         System.out.println();
 
@@ -180,10 +180,10 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
         System.out.println(diff);
         System.out.println();
 
-        System.out.println("# Parse Forest with processed updates:");
-        IncrementalParseForest processedPF =
-            processUpdates.processUpdates(identifier1, (IncrementalParseForest) parseForest, diff);
-        printLaTeX(parseForest, processedPF);
+        System.out.println("# Parse Forest of input " + identifier2 + " after incremental parse:");
+        ParseResult<IParseForest> parse2 = parser.parse(identifier2, identifier1, parseForest);
+        assert parse2.isSuccess();
+        printLaTeX(parseForest, ((ParseSuccess<IParseForest>) parse2).parseResult);
         System.out.println();
     }
 
@@ -206,10 +206,11 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
                 .filter(n -> n instanceof IParseNode && Arrays
                     .stream(((IParseNode<?, ?>) n).getFirstDerivation().parseForests()).anyMatch(c -> c == parseForest))
                 .findFirst().orElse(null);
-            System.out.print("node" + (id > originalSize ? "[new]" : "") + " (" + id + ") {"
+            System.out.print("node" + (id > originalSize ? "[grn]" : "") + " (" + id + ") {"
                 + (production == null ? ""
-                    : ((ParseTableProduction) production).getProduction().leftHand() + (production.constructor() == null
-                        ? "" : "\\sdfoperator .\\sdfconstructor{" + production.constructor() + "}"))
+                    : colourise(((ParseTableProduction) production).getProduction().leftHand())
+                        + (production.constructor() == null ? ""
+                            : "\\sdfoperator .\\sdfconstructor{" + production.constructor() + "}"))
                 + "}");
             IParseForest[] children = getChildren(parseForest);
             if(children.length > 0)
@@ -219,7 +220,9 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             for(IParseForest child : children) {
                 printIndent(indent);
                 String opt = isExp(parseForest) ? "[level distance=6em]"
-                    : isExp(parent) ? "[level distance=3em]" : id == 50 ? "[sibling distance=4em]" : "";
+                    : isExp(parent) ? "[level distance=3em]"
+                        : isLetterPlus(child) ? "[level distance=4em,sibling distance=6em]"
+                            : isLetterPlus(parseForest) ? "[level distance=3em]" : "";
                 System.out.print("child" + opt + " { ");
                 printLaTeX(child, ids, originalSize, indent + 8);
                 System.out.println("}");
@@ -228,8 +231,21 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
                 printIndent(indent - 4);
         } else {
             System.out.print(
-                "node[lex" + (id > originalSize ? ",new" : "") + "] (" + id + ") {" + parseForest.descriptor() + "} ");
+                "node[lex" + (id > originalSize ? ",grn" : "") + "] (" + id + ") {" + parseForest.descriptor() + "} ");
         }
+    }
+
+    private static String colourise(ISymbol symbol) {
+        String res = symbol.toString();
+        for(String keyword : new String[] { "<START>", "LAYOUT", "-CF", "-LEX" }) {
+            res = res.replace(keyword, "\\sdfkeyword{" + keyword + "}");
+        }
+        for(String operator : new String[] { "[", "]", "+", "?" }) {
+            res = res.replace(operator, "\\sdfoperator{" + operator + "}");
+        }
+        res = res.replaceAll("([0-9]+)-([0-9]+)", "\\\\sdfescape{$1}\\\\sdfoperator{-}\\\\sdfescape{$2}");
+        res = res.replaceAll("(\".+\")", "\\\\sdfstring{$1}");
+        return res;
     }
 
     // #### PRINT AST ####
@@ -280,21 +296,20 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     private static void updateIds(Map<IParseForest, Integer> ids, IParseForest parseForest) {
         Stack<IParseForest> stack = new Stack<>();
+        Stack<IParseForest> chars = new Stack<>();
         Queue<IParseForest> queue = new LinkedList<>();
         queue.add(parseForest);
         while(!queue.isEmpty()) {
             IParseForest current = queue.poll();
             IParseForest[] children = getChildren(current);
             if(!ids.containsKey(current))
-                stack.push(current);
-            if(!ids.containsKey(current) && Arrays.stream(children).allMatch(c -> c instanceof ICharacterNode)) {
-                for(int i = children.length - 1; i >= 0; i--) {
-                    if(!ids.containsKey(children[i]))
-                        stack.push(children[i]);
-                }
-            } else {
-                queue.addAll(Arrays.asList(children));
+                (current instanceof ICharacterNode ? chars : stack).push(current);
+            for(int i = children.length - 1; i >= 0; i--) {
+                queue.add(children[i]);
             }
+        }
+        while(!chars.isEmpty()) {
+            ids.put(chars.pop(), ids.size() + 1);
         }
         while(!stack.isEmpty()) {
             ids.put(stack.pop(), ids.size() + 1);
@@ -303,10 +318,11 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
 
     // #### UTIL ####
 
-    static IParser<? extends IParseForest> getParser(BaseTest test) throws Exception {
-        return new ParserVariant(ActiveStacksRepresentation.standard(), ForActorStacksRepresentation.standard(),
-            ParseForestRepresentation.Incremental, ParseForestConstruction.Full, StackRepresentation.Hybrid,
-            Reducing.Incremental, false).getParser(test.getParseTable(new ParseTableVariant()).parseTable);
+    @SuppressWarnings("unchecked") static IParser<IParseForest> getParser(BaseTest test) throws Exception {
+        return (IParser<IParseForest>) new ParserVariant(ActiveStacksRepresentation.standard(),
+            ForActorStacksRepresentation.standard(), ParseForestRepresentation.Incremental,
+            ParseForestConstruction.Full, StackRepresentation.Hybrid, Reducing.Incremental, false)
+                .getParser(test.getParseTable(new ParseTableVariant()).parseTable);
     }
 
     private static Map<IParseForest, Integer> getIds(IParseForest parseForest) {
@@ -332,6 +348,13 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
             && parseForest.width() == 7;
     }
 
+    private static boolean isLetterPlus(IParseForest parseForest) {
+        if(!(parseForest instanceof IParseNode))
+            return false;
+        IParseNode<?, ?> node = (IParseNode<?, ?>) parseForest;
+        return node.production() != null && node.production().lhs().descriptor().contains("[97-122]");
+    }
+
     private static void printIndent(int indent) {
         for(int i = 0; i < indent; i++)
             System.out.print(' ');
@@ -353,7 +376,7 @@ public class IncrementalSGLRThesisExampleTest extends BaseTestWithSdf3ParseTable
     }
 
     public static void logIncrementalParse(BaseTest test, String input1, String input2) throws Exception {
-        @SuppressWarnings("unchecked") IParser<IParseForest> parser = (IParser<IParseForest>) getParser(test);
+        IParser<IParseForest> parser = getParser(test);
         // noinspection rawtypes,unchecked
         ((IObservableParser) parser).observing().attachObserver(new ShiftReduceBreakdownObserver());
 

@@ -179,7 +179,7 @@ public class LayoutSensitiveParseForestManager
 
     @Override public
         ILayoutSensitiveParseNode<ILayoutSensitiveParseForest, ILayoutSensitiveDerivation<ILayoutSensitiveParseForest>>
-        createSkippedNode(ParseState parseState, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
+        createSkippedNode(ParseState parseState, IStackNode stack, IProduction production, ILayoutSensitiveParseForest[] parseForests) {
         throw new IllegalStateException();
     }
 

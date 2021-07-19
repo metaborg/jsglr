@@ -17,43 +17,31 @@ import org.spoofax.jsglr2.elkhound.HybridElkhoundStackManager;
 import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.IncrementalReduceManager;
+import org.spoofax.jsglr2.incremental.diff.IStringDiff;
+import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.inputstack.InputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.inputstack.LayoutSensitiveInputStack;
-import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.inputstack.incremental.LinkedIncrementalInputStack;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveParseForestManager;
 import org.spoofax.jsglr2.layoutsensitive.LayoutSensitiveReduceManager;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
-import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parseforest.basic.BasicParseForestManager;
 import org.spoofax.jsglr2.parseforest.empty.NullParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.recovery.*;
 import org.spoofax.jsglr2.recoveryincremental.RecoveryIncrementalParseState;
-import org.spoofax.jsglr2.reducing.ReduceActionFilter;
-import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.reducing.Reducer;
-import org.spoofax.jsglr2.reducing.ReducerFactory;
-import org.spoofax.jsglr2.reducing.ReducerOptimized;
-import org.spoofax.jsglr2.reducing.Reducing;
+import org.spoofax.jsglr2.reducing.*;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackRepresentation;
 import org.spoofax.jsglr2.stack.basic.BasicStackManager;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.IActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.IForActorStacksFactory;
+import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 
 public class ParserVariant {
@@ -202,7 +190,7 @@ public class ParserVariant {
             return ReducerOptimized.factoryOptimized();
         else
             return Reducer.factory();
-   }
+    }
 
     private
 //@formatter:off
@@ -219,19 +207,24 @@ public class ParserVariant {
             return RecoveryReducerOptimized.factoryRecoveryOptimized();
         else
             return Reducer.factory();
-   }
+    }
 
     public IParser<? extends IParseForest> getParser(IParseTable parseTable, IActiveStacksFactory activeStacksFactory,
         IForActorStacksFactory forActorStacksFactory) {
         if(!this.isValid())
             throw new IllegalStateException("Invalid parser variant: " + validate().collect(Collectors.joining(", ")));
 
+        // TODO parametrize parser on diff algorithm to see what is the most performant
+        IStringDiff diff = new JGitHistogramDiff();
+
         InputStackFactory<IInputStack> inputStackFactory = InputStack::new;
         InputStackFactory<LayoutSensitiveInputStack> inputStackFactoryLS = LayoutSensitiveInputStack::new;
         IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
-            EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
+            IncrementalInputStack.factory(diff); // TODO switch between Eager, Lazy, and Linked?
+        // IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
+        // EagerPreprocessingIncrementalInputStack.factory(diff, new ProcessUpdates(incrementalParseForestManager));
         IncrementalInputStackFactory<IIncrementalInputStack> incrementalRecoveryInputStackFactory =
-            LinkedIncrementalInputStack::new;
+            LinkedIncrementalInputStack.factory(diff);
 
         // @formatter:off
         switch(this.parseForestRepresentation) {

@@ -1,13 +1,12 @@
 module exp-priorities
 
-context-free start-symbols
-	Exp
+start-symbols
+    Exp-CF
 
-context-free syntax
-    Exp.Add = Exp "+" Exp {left}
-    Exp.Mult = Exp "*" Exp {left}
-    Exp.Term = "x"
+syntax
+    Exp-CF.Add = Exp-CF "+" Exp-CF {left}
+    Exp-CF.Mul = Exp-CF "*" Exp-CF {left}
+    Exp-CF.Var = [a-z]
 
-context-free priorities
-
-    Exp.Mult > Exp.Add
+priorities
+    Exp-CF.Mul > Exp-CF.Add

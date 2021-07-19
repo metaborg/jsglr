@@ -1,0 +1,29 @@
+module isglr-thesis-example
+
+context-free start-symbols
+    Start
+
+context-free syntax
+    Start = Stmt+
+
+    Stmt.Assign = ID "=" Exp
+    Stmt.Return = "return" Exp
+
+    Exp.Add = Exp "+" Exp {left}
+    Exp.Mul = Exp "*" Exp {left}
+    Exp.Var = ID
+    Exp.Num = NUMBER
+
+context-free priorities
+    Exp.Mul > Exp.Add
+
+lexical syntax
+    ID = [a-z]+
+    ID = "return" {reject}
+    NUMBER = [0-9]+
+
+    LAYOUT = [\ \t\r\n]
+
+lexical restrictions
+    ID -/- [a-z]
+    NUMBER -/- [0-9]

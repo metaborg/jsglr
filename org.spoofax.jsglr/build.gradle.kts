@@ -3,14 +3,16 @@ plugins {
   id("org.metaborg.gradle.config.junit-testing")
 }
 
+fun compositeBuild(name: String) = "$group:$name:$version"
+val spoofax2Version: String by ext
 dependencies {
-  // api(platform("org.metaborg:parent:$version")) // Can't use: causes dependency cycle because parent mentions pie.
+  api(platform("org.metaborg:parent:$spoofax2Version"))
 
-  api("org.metaborg:org.spoofax.terms:$version")
+  implementation(compositeBuild("org.spoofax.terms"))
   testCompileOnly("junit:junit:4.13.1")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
-  api("org.metaborg:org.metaborg.util:$version")
-  api("org.metaborg:org.metaborg.parsetable:$version")
+  implementation(compositeBuild("org.metaborg.util"))
+  api(compositeBuild("org.metaborg.parsetable"))
 }
 
 sourceSets {

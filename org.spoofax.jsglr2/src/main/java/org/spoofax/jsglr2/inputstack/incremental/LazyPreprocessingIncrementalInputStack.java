@@ -1,16 +1,18 @@
 package org.spoofax.jsglr2.inputstack.incremental;
 
 import static org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode.EOF_NODE;
+import static org.spoofax.jsglr2.inputstack.incremental.AbstractPreprocessingIncrementalInputStack.preProcessParseForest;
 
 import java.util.Stack;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
+import org.spoofax.jsglr2.incremental.IIncrementalParseState;
+import org.spoofax.jsglr2.incremental.diff.IStringDiff;
+import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
+import org.spoofax.jsglr2.incremental.parseforest.*;
+import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.stack.IStackNode;
 
-public class LazyIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
+public class LazyPreprocessingIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**
      * The stack contains the parent and child index of the node that has been returned last time. When the stack is
      * initialized, a mock root is created and pushed to the stack.
@@ -22,7 +24,7 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
      * @param inputString
      *            should be equal to the yield of the root.
      */
-    public LazyIncrementalInputStack(IncrementalParseForest root, String inputString) {
+    public LazyPreprocessingIncrementalInputStack(IncrementalParseForest root, String inputString) {
         super(inputString);
         IncrementalParseNode ultraRoot = new IncrementalParseNode(root, IncrementalCharacterNode.EOF_NODE);
         stack.push(new StackTuple(ultraRoot, 0));
@@ -30,12 +32,16 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
         this.last = root;
     }
 
-    LazyIncrementalInputStack(IncrementalParseForest root) {
-        this(root, root.getYield());
+    public static <StackNode extends IStackNode, ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
+        IncrementalInputStackFactory<IIncrementalInputStack>
+        factory(IStringDiff diff, ProcessUpdates<StackNode, ParseState> processUpdates) {
+        return (inputString, previousInput, previousResult) -> new LazyPreprocessingIncrementalInputStack(
+            preProcessParseForest(processUpdates, diff, inputString, previousInput, previousResult), inputString);
     }
 
-    @Override public LazyIncrementalInputStack clone() {
-        LazyIncrementalInputStack clone = new LazyIncrementalInputStack(EOF_NODE, inputString);
+    @Override public LazyPreprocessingIncrementalInputStack clone() {
+        LazyPreprocessingIncrementalInputStack clone =
+            new LazyPreprocessingIncrementalInputStack(EOF_NODE, inputString);
         clone.stack.clear();
         for(StackTuple stackTuple : stack) {
             clone.stack.push(stackTuple);
@@ -52,14 +58,15 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
     @Override public void breakDown() {
         if(stack.isEmpty())
             last = null;
-        if(last == null || last.isTerminal()) {
-            if(last instanceof IncrementalSkippedNode) {
-                // Replace skipped node by one that has all skipped characters explicitly instantiated
-                last = new IncrementalParseNode(inputString.substring(currentOffset, currentOffset + last.width())
-                    .codePoints().mapToObj(IncrementalCharacterNode::new).toArray(IncrementalParseForest[]::new));
-            } else
-                return;
+        if(last == null || last.isTerminal())
+            return;
+
+        if(last instanceof IncrementalSkippedNode) {
+            // Replace skipped node by one that has all skipped characters explicitly instantiated
+            last = new IncrementalParseNode(inputString.substring(currentOffset, currentOffset + last.width())
+                .codePoints().mapToObj(IncrementalCharacterNode::new).toArray(IncrementalParseForest[]::new));
         }
+
         IncrementalParseForest[] children = ((IncrementalParseNode) last).getFirstDerivation().parseForests();
         if(children.length > 0) {
             stack.push(new StackTuple(((IncrementalParseNode) last), 0));
@@ -70,8 +77,10 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
 
     @Override public void next() {
         currentOffset += last.width();
-        if(stack.isEmpty())
+        if(stack.isEmpty()) {
             last = null;
+            return;
+        }
         StackTuple res = stack.pop();
         while(rightSibling(res) == null)
             if(stack.isEmpty()) {
@@ -81,6 +90,19 @@ public class LazyIncrementalInputStack extends AbstractInputStack implements IIn
                 res = stack.pop();
         stack.push(new StackTuple(res.parseForest, res.childIndex + 1));
         last = rightSibling(res);
+    }
+
+    /** See comment at {@link AbstractPreprocessingIncrementalInputStack#lookaheadIsUnchanged()} */
+    @Override public boolean lookaheadIsUnchanged() {
+        return false;
+        // for(int i = stack.size() - 1; i >= 0; i--) {
+        // IncrementalParseForest node = rightSibling(stack.get(i));
+        // if(node != null) {
+        // if(node.isTerminal()) return true;
+        // return ((IncrementalParseNode) node).production() != null;
+        // }
+        // }
+        // return true; // EOF is always unchanged
     }
 
     private IncrementalParseForest rightSibling(StackTuple res) {

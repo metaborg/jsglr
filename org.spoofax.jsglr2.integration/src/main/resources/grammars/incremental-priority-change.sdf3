@@ -1,0 +1,14 @@
+module incremental-priority-change
+
+start-symbols
+	Start-CF
+
+syntax
+    Start-CF.Left = "<" ExpL-CF ">" "L"
+    Start-CF.Right = "<" ExpR-CF ">" "R"
+
+    ExpL-CF.AddL = ExpL-CF "+" ExpL-CF {left}
+    ExpR-CF.AddR = ExpR-CF "+" ExpR-CF {right}
+    ExpR-CF.MulR = ExpR-CF "*" ExpR-CF {right}
+    ExpL-CF.TermL = "x"
+    ExpR-CF.TermR = "x"

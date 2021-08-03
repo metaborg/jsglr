@@ -3,7 +3,10 @@ package org.spoofax.jsglr2.messages;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 
-public class SourceRegion {
+import javax.annotation.Nullable;
+import java.io.Serializable;
+
+public class SourceRegion implements Serializable {
 
     public final int startOffset, startRow, startColumn;
     /** Inclusive. */
@@ -45,4 +48,25 @@ public class SourceRegion {
             token.getEndLine(), token.getEndColumn());
     }
 
+    @Override public boolean equals(@Nullable Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        final SourceRegion that = (SourceRegion)o;
+        if(startOffset != that.startOffset) return false;
+        if(startRow != that.startRow) return false;
+        if(startColumn != that.startColumn) return false;
+        if(endOffset != that.endOffset) return false;
+        if(endRow != that.endRow) return false;
+        return endColumn == that.endColumn;
+    }
+
+    @Override public int hashCode() {
+        int result = startOffset;
+        result = 31 * result + startRow;
+        result = 31 * result + startColumn;
+        result = 31 * result + endOffset;
+        result = 31 * result + endRow;
+        result = 31 * result + endColumn;
+        return result;
+    }
 }

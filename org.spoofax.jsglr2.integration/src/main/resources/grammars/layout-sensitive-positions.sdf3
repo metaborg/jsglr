@@ -1,4 +1,4 @@
-module layout-sensitive
+module layout-sensitive-positions
 
 context-free start-symbols
   
@@ -11,11 +11,6 @@ context-free start-symbols
   LexicalFirstLine1Col2
   LexicalFirstLine2Col1
   LexicalFirstLine2Col2
-  
-  LiteralLeftLine1Col1
-  LiteralLeftLine1Col2
-  LiteralLeftLine2Col1
-  LiteralLeftLine2Col2
 
   LeftCol1
   LeftCol2
@@ -36,7 +31,7 @@ context-free syntax
   LexicalFirstLine1Col2.LexicalFirstLine1Col2 = LEX {layout(0.first.line == 1 && 0.first.col == 2)}
   LexicalFirstLine2Col1.LexicalFirstLine2Col1 = LEX {layout(0.first.line == 2 && 0.first.col == 1)}
   LexicalFirstLine2Col2.LexicalFirstLine2Col2 = LEX {layout(0.first.line == 2 && 0.first.col == 2)}
-  
+
   LeftCol1.LeftCol1 = P+ {layout(0.left.col == 1)}
   LeftCol2.LeftCol2 = Q+ {layout(0.left.col == 2)}
 

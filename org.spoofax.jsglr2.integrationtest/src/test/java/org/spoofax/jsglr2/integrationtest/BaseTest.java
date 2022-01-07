@@ -295,7 +295,11 @@ public abstract class BaseTest implements WithParseTable {
 
         String[] expectedOutputAstStrings = new String[inputs.length];
         for(int i = 0; i < inputs.length; i++) {
-            expectedOutputAstStrings[i] = batchJSGLR2.parse(inputs[i]).toString();
+            JSGLR2Result<IStrategoTerm> result = batchJSGLR2.parseResult(inputs[i]);
+            int finalI = i;
+            assertTrue(result.isSuccess(), () -> "Batch parse for version " + finalI + " failed:\n"
+                + ((JSGLR2Failure<IStrategoTerm>) result).parseFailure.exception());
+            expectedOutputAstStrings[i] = ((JSGLR2Success<IStrategoTerm>) result).ast.toString();
         }
 
         return testIncrementalSuccessByExpansions(inputs, expectedOutputAstStrings);

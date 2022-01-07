@@ -58,7 +58,7 @@ public class IncrementalParser
     @Override protected ParseState getParseState(JSGLR2Request request, String previousInput,
         IncrementalParseForest previousResult) {
         return parseStateFactory.get(request,
-            incrementalInputStackFactory.get(request.input, previousInput, previousResult), observing);
+            incrementalInputStackFactory.get(request.input, previousInput, previousResult, observing), observing);
     }
 
     @Override protected void parseLoop(ParseState parseState) throws ParseException {
@@ -171,14 +171,13 @@ public class IncrementalParser
 
             // If we are already planning to reuse a parse node, and the lookahead is not changed,
             // then we don't have to break down this parse node.
+            // This optimization is kind of hacky and I'm not 100% sure if it works so I didn't include it in my thesis,
+            // but at least it improves the amount of reuse and the benchmarks don't break 🤷
             if(!parseState.forShifter.isEmpty() && parseState.inputStack.lookaheadIsUnchanged())
                 return Collections.emptyList();
 
-            observing.notify(observer -> observer.breakDown(parseState.inputStack,
-                lookaheadNode.production() == null ? TEMPORARY : lookaheadNode.isReusable()
-                    ? lookaheadNode.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE));
-
-            parseState.inputStack.breakDown();
+            parseState.inputStack.breakDown(lookaheadNode.production() == null ? TEMPORARY : lookaheadNode.isReusable()
+                ? lookaheadNode.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE : IRREUSABLE);
             observing.notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
 
             // If the broken-down node has no children, it has been removed from the input stack.

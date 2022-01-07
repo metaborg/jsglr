@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.measure.incremental;
 
 import static org.spoofax.jsglr2.measure.incremental.IncrementalParsingMeasurement.*;
+import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,7 +28,6 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
-import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
@@ -131,14 +131,16 @@ public class IncrementalParsingMeasurements extends Measurements<String[], Incre
                         return measureObserver.shiftNode;
                     case breakDowns:
                         return measureObserver.breakdown.values().stream().mapToLong(l -> l).sum();
+                    case breakDownHasChange:
+                        return measureObserver.breakdown.getOrDefault(BreakdownReason.HAS_CHANGE, 0L);
                     case breakDownIrreusable:
-                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.IRREUSABLE, 0L);
+                        return measureObserver.breakdown.getOrDefault(BreakdownReason.IRREUSABLE, 0L);
                     case breakDownNoActions:
-                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.NO_ACTIONS, 0L);
+                        return measureObserver.breakdown.getOrDefault(BreakdownReason.NO_ACTIONS, 0L);
                     case breakDownTemporary:
-                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.TEMPORARY, 0L);
+                        return measureObserver.breakdown.getOrDefault(BreakdownReason.TEMPORARY, 0L);
                     case breakDownWrongState:
-                        return measureObserver.breakdown.getOrDefault(IParserObserver.BreakdownReason.WRONG_STATE, 0L);
+                        return measureObserver.breakdown.getOrDefault(BreakdownReason.WRONG_STATE, 0L);
                     default:
                         return -1L;
                 }

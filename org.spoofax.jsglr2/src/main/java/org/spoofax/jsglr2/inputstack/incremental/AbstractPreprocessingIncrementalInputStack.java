@@ -10,6 +10,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
+import org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 import org.spoofax.jsglr2.stack.IStackNode;
 
 /**
@@ -56,7 +57,7 @@ public abstract class AbstractPreprocessingIncrementalInputStack extends Abstrac
 
     @Override public abstract AbstractPreprocessingIncrementalInputStack clone();
 
-    @Override public void breakDown() {
+    @Override public void breakDown(BreakdownReason breakdownReason) {
         if(stack.isEmpty())
             return;
 
@@ -64,18 +65,17 @@ public abstract class AbstractPreprocessingIncrementalInputStack extends Abstrac
         if(current.isTerminal())
             return;
 
+        stack.pop(); // always pop last lookahead, whether it has children or not
+
         if(current instanceof IncrementalSkippedNode) {
             // Break down a skipped node by explicitly instantiating character nodes for the skipped part
-            stack.pop();
             pushCharactersToStack(inputString.substring(currentOffset, currentOffset + current.width()));
-            return;
-        }
-
-        stack.pop(); // always pop last lookahead, whether it has children or not
-        IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
-        // Push all children to stack in reverse order
-        for(int i = children.length - 1; i >= 0; i--) {
-            stack.push(children[i]);
+        } else {
+            IncrementalParseForest[] children = ((IncrementalParseNode) current).getFirstDerivation().parseForests();
+            // Push all children to stack in reverse order
+            for(int i = children.length - 1; i >= 0; i--) {
+                stack.push(children[i]);
+            }
         }
     }
 

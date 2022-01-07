@@ -12,6 +12,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
+import org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 
 public abstract class AbstractPreprocessingIncrementalInputStackTest {
 
@@ -167,17 +168,17 @@ public abstract class AbstractPreprocessingIncrementalInputStackTest {
         IncrementalParseNode parseNode2 = new IncrementalParseNode(node3, node4);
         IncrementalParseNode root = new IncrementalParseNode(parseNode1, parseNode2);
 
-        TestTuple[] actions =
-            new TestTuple[] { new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, parseNode1),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node1),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node1),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, node2),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node2),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, parseNode2),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node3),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node3),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, node4),
-                new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node4) };
+        TestTuple[] actions = new TestTuple[] {
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, parseNode1),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node1),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node1),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, node2),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node2),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, parseNode2),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node3),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node3),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertPopLookahead, node4),
+            new TestTuple(AbstractPreprocessingIncrementalInputStackTest::assertLeftBreakdown, node4) };
 
         IIncrementalInputStack original = getStack(root);
         IIncrementalInputStack[] clones = new IIncrementalInputStack[actions.length];
@@ -231,12 +232,12 @@ public abstract class AbstractPreprocessingIncrementalInputStackTest {
     }
 
     protected static void assertLeftBreakdown(IncrementalParseForest forest, IIncrementalInputStack stack) {
-        stack.breakDown();
+        stack.breakDown(BreakdownReason.HAS_CHANGE);
         assertSame(forest, stack.getNode());
     }
 
     protected static void assertLeftBreakdown(int character, IIncrementalInputStack stack) {
-        stack.breakDown();
+        stack.breakDown(BreakdownReason.HAS_CHANGE);
         assertEquals(character, ((IncrementalCharacterNode) stack.getNode()).character());
     }
 

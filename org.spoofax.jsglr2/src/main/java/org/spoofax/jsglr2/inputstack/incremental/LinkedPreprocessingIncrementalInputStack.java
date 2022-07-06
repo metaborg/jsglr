@@ -4,7 +4,6 @@ import org.spoofax.jsglr2.incremental.IIncrementalParseState;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.IStackNode;
 
@@ -25,7 +24,7 @@ public class LinkedPreprocessingIncrementalInputStack extends AbstractPreprocess
     public static <StackNode extends IStackNode, ParseState extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState>
         IncrementalInputStackFactory<IIncrementalInputStack>
         factory(IStringDiff diff, ProcessUpdates<StackNode, ParseState> processUpdates) {
-        return (inputString, previousInput, previousResult) -> new LinkedPreprocessingIncrementalInputStack(
+        return (inputString, previousInput, previousResult, observing) -> new LinkedPreprocessingIncrementalInputStack(
             preProcessParseForest(processUpdates, diff, inputString, previousInput, previousResult), inputString);
     }
 

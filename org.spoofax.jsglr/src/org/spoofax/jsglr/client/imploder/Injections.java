@@ -1,6 +1,7 @@
 package org.spoofax.jsglr.client.imploder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.attachments.OriginAttachment;
 
 import com.google.common.collect.ImmutableList;
 
@@ -21,7 +23,7 @@ public class Injections {
 
     public static IStrategoTerm explicate(IStrategoTerm term, PartialFunction2<String, String, String> injName,
             ITermFactory factory) {
-        final List<String> injections = ImmutableList.copyOf(ImploderAttachment.get(term).getInjections()).reverse();
+        final List<String> injections = ImmutableList.copyOf(getInjections(term)).reverse();
 
         IStrategoTerm result;
         String sort;
@@ -33,7 +35,7 @@ public class Injections {
                         Arrays.stream(appl.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
                                 .collect(Collectors.toList()).toArray(new IStrategoTerm[appl.getSubtermCount()]);
                 result = factory.makeAppl(appl.getConstructor(), subterms, appl.getAnnotations());
-                sort = ImploderAttachment.get(term).getSort();
+                sort = getImploderAttachment(term).getSort();
                 break;
             }
             case TUPLE: {
@@ -43,7 +45,7 @@ public class Injections {
                                 .collect(Collectors.toList()).toArray(new IStrategoTerm[tuple.getSubtermCount()]);
                 result = factory.makeTuple(subterms, tuple.getAnnotations());
                 final List<String> componentSorts = Arrays.stream(term.getAllSubterms())
-                        .map(t -> ImploderAttachment.get(t).getSort()).collect(Collectors.toList());
+                        .map(t -> getImploderAttachment(t).getSort()).collect(Collectors.toList());
                 sort = "Tuple_" + String.join("_", componentSorts) + "_";
                 break;
             }
@@ -53,17 +55,17 @@ public class Injections {
                         Arrays.stream(list.getAllSubterms()).map(subterm -> explicate(subterm, injName, factory))
                                 .collect(Collectors.toList()).toArray(new IStrategoTerm[list.getSubtermCount()]);
                 result = factory.makeList(subterms, list.getAnnotations());
-                final String elementSort = ImploderAttachment.get(term).getElementSort();
+                final String elementSort = getImploderAttachment(term).getElementSort();
                 sort = "List_" + elementSort + "_";
                 break;
             }
             default:
                 result = term;
-                sort = ImploderAttachment.get(term).getSort();
+                sort = getImploderAttachment(term).getSort();
                 break;
         }
         result = factory.copyAttachments(term, result);
-        ImploderAttachment.get(result).clearInjections();
+        getImploderAttachment(result).clearInjections();
 
         for(String injection : injections) {
             final Optional<String> name = injName.apply(sort, injection);
@@ -73,7 +75,7 @@ public class Injections {
             final IStrategoConstructor cons = factory.makeConstructor(name.get(), 1);
             final IStrategoTerm anno =
                     factory.makeAppl(INJ_ANNO, factory.makeString(sort), factory.makeString(injection));
-            ImploderAttachment ia = ImploderAttachment.get(result);
+            ImploderAttachment ia = getImploderAttachment(result);
             result = factory.makeAppl(cons, new IStrategoTerm[] { result }, factory.makeList(anno));
             sort = injection;
             if(ia != null) {
@@ -83,6 +85,16 @@ public class Injections {
         }
 
         return result;
+    }
+
+    private static List<String> getInjections(IStrategoTerm term) {
+        final ImploderAttachment ia = getImploderAttachment(term);
+        return ia == null ? Collections.emptyList() : ia.getInjections();
+    }
+
+    private static ImploderAttachment getImploderAttachment(IStrategoTerm term) {
+        final IStrategoTerm origin = OriginAttachment.tryGetOrigin(term); // Simply returns `term` when there is no origin.
+        return ImploderAttachment.get(origin);
     }
 
 }

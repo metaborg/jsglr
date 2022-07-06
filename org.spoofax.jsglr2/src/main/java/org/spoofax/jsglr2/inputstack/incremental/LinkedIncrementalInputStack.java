@@ -5,6 +5,7 @@ import java.util.List;
 import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.parser.observing.ParserObserving;
 
 public class LinkedIncrementalInputStack extends AbstractIncrementalInputStack {
 
@@ -13,8 +14,8 @@ public class LinkedIncrementalInputStack extends AbstractIncrementalInputStack {
     }
 
     public LinkedIncrementalInputStack(String input, String previousInput, IncrementalParseForest previousResult,
-        List<EditorUpdate> editorUpdates) {
-        super(input, previousInput, previousResult, editorUpdates);
+        List<EditorUpdate> editorUpdates, ParserObserving<?, ?, ?, ?, ?> observing) {
+        super(input, previousInput, previousResult, editorUpdates, observing);
     }
 
     public static IncrementalInputStackFactory<IIncrementalInputStack> factory(IStringDiff diff) {

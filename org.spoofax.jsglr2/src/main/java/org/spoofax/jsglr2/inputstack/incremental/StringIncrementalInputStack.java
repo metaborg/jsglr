@@ -2,6 +2,7 @@ package org.spoofax.jsglr2.inputstack.incremental;
 
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalCharacterNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason;
 
 /**
  * An incremental input stack that does not have a previous parse tree, but just an input string.<br>
@@ -35,7 +36,7 @@ public class StringIncrementalInputStack extends AbstractInputStack implements I
         return currentNode;
     }
 
-    @Override public void breakDown() {
+    @Override public void breakDown(BreakdownReason breakdownReason) {
         // Nothing to do, character nodes cannot be broken down
     }
 

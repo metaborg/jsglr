@@ -70,9 +70,10 @@ public interface IParserObserver
     }
 
     enum BreakdownReason {
+        /** The parse node is broken down because it contains a change from the diff. */
+        HAS_CHANGE("parse node contains a change"),
         /**
-         * The parse node is broken down because it is irreusable.
-         * A parse node is irreusable when it stores no state,
+         * The parse node is broken down because it is irreusable. A parse node is irreusable when it stores no state,
          * which happens when it is created during a non-deterministic phase of parsing.
          */
         IRREUSABLE("parse node was irreusable, i.e., created while parse was non-deterministic"),

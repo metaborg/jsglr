@@ -60,7 +60,7 @@ public class MeasureStateFactory extends StateFactory {
                 Math.max(actionsPerDisjointSortedRangeMax, actionsForSortedDisjointRange.actions.length);
         }
 
-        actionsCount += actionsCount;
+        this.actionsCount += actionsCount;
 
         gotosPerStateMax = Math.max(gotosPerStateMax, gotos.length);
         actionGroupsPerStateMax = Math.max(actionGroupsPerStateMax, actionsPerCharacterClasses.length);

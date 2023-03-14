@@ -4,11 +4,10 @@ import java.util.Collections;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
-
-import com.google.common.collect.Iterables;
 
 public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
 
@@ -43,7 +42,7 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     @Override public IStrategoTerm createOptional(ISymbol symbol, Iterable<IStrategoTerm> children) {
-        return createNonTerminal(symbol, children == null || Iterables.isEmpty(children) ? "None" : "Some", children);
+        return createNonTerminal(symbol, children == null || Iterables2.isEmpty(children) ? "None" : "Some", children);
     }
 
     @Override public IStrategoTerm createTuple(Iterable<IStrategoTerm> children) {
@@ -55,7 +54,7 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     private static IStrategoTerm[] toArray(Iterable<IStrategoTerm> children) {
-        return Iterables.toArray(children, IStrategoTerm.class);
+        return Iterables2.toArray(children);
     }
 
 }

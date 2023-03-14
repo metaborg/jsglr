@@ -7,21 +7,30 @@
  */
 package org.spoofax.jsglr.client;
 
-import static java.util.Arrays.asList;
-import static org.spoofax.terms.Term.*;
-import static org.spoofax.terms.util.TermUtils.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
@@ -32,9 +41,17 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.SetMultimap;
+import io.usethesource.capsule.SetMultimap;
+
+import static java.util.Arrays.asList;
+import static org.spoofax.terms.Term.intAt;
+import static org.spoofax.terms.Term.isTermAppl;
+import static org.spoofax.terms.Term.isTermInt;
+import static org.spoofax.terms.Term.javaInt;
+import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.util.TermUtils.toAppl;
+import static org.spoofax.terms.util.TermUtils.toInt;
+import static org.spoofax.terms.util.TermUtils.toList;
 
 /**
  * A parse table.
@@ -65,10 +82,10 @@ public class ParseTable implements Serializable {
 
     private Associativity[] associativities;
 
-    private final SetMultimap<Integer, Integer> nonAssocProductionLabels = HashMultimap.create();
-    private final SetMultimap<Integer, Integer> nonNestedProductionLabels = HashMultimap.create();
-    private final SetMultimap<String, String> nonAssocProductions = HashMultimap.create();
-    private final SetMultimap<String, String> nonNestedProductions = HashMultimap.create();
+    private final SetMultimap.Transient<Integer, Integer> nonAssocProductionLabels = SetMultimap.Transient.of();
+    private final SetMultimap.Transient<Integer, Integer> nonNestedProductionLabels = SetMultimap.Transient.of();
+    private final SetMultimap.Transient<String, String> nonAssocProductions = SetMultimap.Transient.of();
+    private final SetMultimap.Transient<String, String> nonNestedProductions = SetMultimap.Transient.of();
 
     private boolean hasRejects;
 
@@ -294,16 +311,16 @@ public class ParseTable implements Serializable {
     }
 
     private void updateNonAssocProductions(Label[] labels, SetMultimap<Integer, Integer> productionLabels,
-        SetMultimap<String, String> productions) {
+        SetMultimap.Transient<String, String> productions) {
         ProductionAttributeReader par = new ProductionAttributeReader(getFactory());
-        productionLabels.forEach((higher, lower) -> {
+        productionLabels.entrySet().forEach(e -> {int higher = e.getKey(); int lower = e.getValue();
             Label highLabel = labels[higher];
             Label lowLabel = labels[lower];
             String highSort = par.getSort((IStrategoAppl) highLabel.prod.getSubterm(1));
             String highCons = par.getConsAttribute((IStrategoAppl) highLabel.prod.getSubterm(2));
             String lowSort = par.getSort((IStrategoAppl) lowLabel.prod.getSubterm(1));
             String lowCons = par.getConsAttribute((IStrategoAppl) lowLabel.prod.getSubterm(2));
-            productions.put(highSort + "." + highCons, lowSort + "." + lowCons);
+            productions.__insert(highSort + "." + highCons, lowSort + "." + lowCons);
         });
     }
 
@@ -399,15 +416,18 @@ public class ParseTable implements Serializable {
                         for(IStrategoTerm assocInfo : t.getAllSubterms()) {
                             IStrategoAppl assocInfoAppl = toAppl(assocInfo);
                             String assocName = assocInfoAppl.getConstructor().getName();
-                            Set<Integer> assocWithSet =
+                            IntStream assocWithSet =
                                     Arrays.stream(toList(assocInfoAppl.getSubterm(0)).getAllSubterms())
-                                            .map(s -> toInt(s).intValue()).collect(ImmutableSet.toImmutableSet());
+                                            .mapToInt(s -> toInt(s).intValue());
                             switch(assocName) {
                                 case "non-assoc":
-                                    nonAssocProductionLabels.putAll(labelNumber, assocWithSet);
+                                    assocWithSet.forEach(
+                                        num -> nonAssocProductionLabels.__insert(labelNumber, num));
                                     break;
                                 case "non-nested":
-                                    nonNestedProductionLabels.putAll(labelNumber, assocWithSet);
+                                    assocWithSet.forEach(
+                                        num -> nonNestedProductionLabels.__insert(labelNumber,
+                                            num));
                                     break;
                                 default:
                                     throw new InvalidParseTableException(

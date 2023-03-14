@@ -1,6 +1,5 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.spoofax.terms.util.TermUtils.*;
@@ -18,6 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.ParseTableVariant;
+import org.metaborg.util.resource.ResourceUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;
@@ -42,8 +42,6 @@ import org.spoofax.jsglr2.util.AstUtilities;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.io.binary.TermReader;
-
-import com.google.common.io.Resources;
 
 public abstract class BaseTest implements WithParseTable {
 
@@ -489,7 +487,7 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     private static IParseForest[] getChildren(IParseNode<?, ?> parseNode) {
-        if(isEmpty(parseNode.getDerivations()))
+        if(!parseNode.getDerivations().iterator().hasNext())
             return EMPTY_CHILDREN;
         return parseNode.getFirstDerivation().parseForests();
     }
@@ -701,11 +699,11 @@ public abstract class BaseTest implements WithParseTable {
     }
 
     protected String getFileAsString(String filename) throws IOException {
-        return Resources.toString(Resources.getResource("samples/" + filename), StandardCharsets.UTF_8);
+        return ResourceUtils.readJavaResource("samples/" + filename, StandardCharsets.UTF_8);
     }
 
     protected IStrategoTerm getFileAsAST(String filename) throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("samples/" + filename);
+        InputStream inputStream = ResourceUtils.resolveJavaResource("samples/" + filename).openStream();
 
         return termReader.parseFromStream(inputStream);
     }

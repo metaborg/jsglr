@@ -54,7 +54,7 @@ public class StrategoTermTreeFactory implements ITreeFactory<IStrategoTerm> {
     }
 
     private static IStrategoTerm[] toArray(Iterable<IStrategoTerm> children) {
-        return Iterables2.toArray(children);
+        return Iterables2.toArray(children, IStrategoTerm.class);
     }
 
 }

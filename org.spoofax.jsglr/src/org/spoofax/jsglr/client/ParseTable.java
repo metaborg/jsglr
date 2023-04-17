@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.IParseTableGenerator;
+import org.metaborg.util.collection.SetMultimap;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -40,8 +41,6 @@ import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
-
-import io.usethesource.capsule.SetMultimap;
 
 import static java.util.Arrays.asList;
 import static org.spoofax.terms.Term.intAt;
@@ -82,10 +81,10 @@ public class ParseTable implements Serializable {
 
     private Associativity[] associativities;
 
-    private final SetMultimap.Transient<Integer, Integer> nonAssocProductionLabels = SetMultimap.Transient.of();
-    private final SetMultimap.Transient<Integer, Integer> nonNestedProductionLabels = SetMultimap.Transient.of();
-    private final SetMultimap.Transient<String, String> nonAssocProductions = SetMultimap.Transient.of();
-    private final SetMultimap.Transient<String, String> nonNestedProductions = SetMultimap.Transient.of();
+    private final SetMultimap<Integer, Integer> nonAssocProductionLabels = new SetMultimap<>();
+    private final SetMultimap<Integer, Integer> nonNestedProductionLabels = new SetMultimap<>();
+    private final SetMultimap<String, String> nonAssocProductions = new SetMultimap<>();
+    private final SetMultimap<String, String> nonNestedProductions = new SetMultimap<>();
 
     private boolean hasRejects;
 
@@ -311,16 +310,16 @@ public class ParseTable implements Serializable {
     }
 
     private void updateNonAssocProductions(Label[] labels, SetMultimap<Integer, Integer> productionLabels,
-        SetMultimap.Transient<String, String> productions) {
+        SetMultimap<String, String> productions) {
         ProductionAttributeReader par = new ProductionAttributeReader(getFactory());
-        productionLabels.entrySet().forEach(e -> {int higher = e.getKey(); int lower = e.getValue();
+        productionLabels.entries().forEach(e -> {int higher = e.getKey(); int lower = e.getValue();
             Label highLabel = labels[higher];
             Label lowLabel = labels[lower];
             String highSort = par.getSort((IStrategoAppl) highLabel.prod.getSubterm(1));
             String highCons = par.getConsAttribute((IStrategoAppl) highLabel.prod.getSubterm(2));
             String lowSort = par.getSort((IStrategoAppl) lowLabel.prod.getSubterm(1));
             String lowCons = par.getConsAttribute((IStrategoAppl) lowLabel.prod.getSubterm(2));
-            productions.__insert(highSort + "." + highCons, lowSort + "." + lowCons);
+            productions.put(highSort + "." + highCons, lowSort + "." + lowCons);
         });
     }
 
@@ -422,11 +421,11 @@ public class ParseTable implements Serializable {
                             switch(assocName) {
                                 case "non-assoc":
                                     assocWithSet.forEach(
-                                        num -> nonAssocProductionLabels.__insert(labelNumber, num));
+                                        num -> nonAssocProductionLabels.put(labelNumber, num));
                                     break;
                                 case "non-nested":
                                     assocWithSet.forEach(
-                                        num -> nonNestedProductionLabels.__insert(labelNumber,
+                                        num -> nonNestedProductionLabels.put(labelNumber,
                                             num));
                                     break;
                                 default:

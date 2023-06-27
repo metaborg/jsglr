@@ -42,6 +42,11 @@
             <version>5.3.2.201906051522-r</version>
         </dependency>
 
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+
     </dependencies>
 
     <developers>

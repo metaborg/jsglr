@@ -35,7 +35,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.HybridInterpreter;
 
-import com.google.common.collect.Iterables;
 import javax.inject.Singleton;
 
 public class Sdf3ToParseTable {
@@ -70,8 +69,8 @@ public class Sdf3ToParseTable {
 
         final Set<ILanguageImpl> languageImpls = spoofax.scanLanguagesInDirectory(sdf3Location);
 
-        sdf3Impl = Iterables.get(languageImpls, 0);
-        sdf3Component = Iterables.get(sdf3Impl.components(), 0);
+        sdf3Impl = languageImpls.iterator().next();
+        sdf3Component = sdf3Impl.components().iterator().next();
 
         final FileObject testDirectory = spoofax.resourceService.resolve(getResourcePath("grammars"));
         final IProject testProject = ((ISimpleProjectService) spoofax.projectService).create(testDirectory);

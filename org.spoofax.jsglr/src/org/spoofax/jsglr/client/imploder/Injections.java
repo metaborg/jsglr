@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.metaborg.util.collection.ImList;
 import org.metaborg.util.functions.PartialFunction2;
+import org.metaborg.util.iterators.ReverseListIterator;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -15,15 +17,13 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.OriginAttachment;
 
-import com.google.common.collect.ImmutableList;
-
 public class Injections {
 
     private static final String INJ_ANNO = "inj";
 
     public static IStrategoTerm explicate(IStrategoTerm term, PartialFunction2<String, String, String> injName,
             ITermFactory factory) {
-        final List<String> injections = ImmutableList.copyOf(getInjections(term)).reverse();
+        final List<String> injections = ImList.Immutable.copyOf(getInjections(term));
 
         IStrategoTerm result;
         String sort;
@@ -67,7 +67,7 @@ public class Injections {
         result = factory.copyAttachments(term, result);
         getImploderAttachment(result).clearInjections();
 
-        for(String injection : injections) {
+        for(String injection : ReverseListIterator.reverse(injections)) {
             final Optional<String> name = injName.apply(sort, injection);
             if(!name.isPresent()) {
                 continue;

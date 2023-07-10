@@ -35,7 +35,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.HybridInterpreter;
 
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
 
 public class Sdf3ToParseTable {
 

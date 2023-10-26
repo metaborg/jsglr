@@ -10,7 +10,7 @@ dependencies {
 
   api(compositeBuild("org.spoofax.terms"))
   implementation(project(":org.spoofax.jsglr"))
-  compileOnly("com.google.code.findbugs:jsr305")
+  compileOnly("jakarta.annotation:jakarta.annotation-api")
   implementation(compositeBuild("sdf2table"))
   testCompileOnly("junit:junit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")

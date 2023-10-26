@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.recovery;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;

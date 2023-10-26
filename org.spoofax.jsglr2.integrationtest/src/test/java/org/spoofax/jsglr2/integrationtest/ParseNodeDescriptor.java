@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.integrationtest;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public final class ParseNodeDescriptor {
 

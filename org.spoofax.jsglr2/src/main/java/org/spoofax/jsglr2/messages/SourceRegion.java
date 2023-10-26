@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.messages;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.Serializable;
 
 public class SourceRegion implements Serializable {

@@ -32,6 +32,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
         return testSuccessByAstString("baz", "List([Id(\"baz\")])");
     }
 
+    // N.B. this test finds an edgecase where JSGLR2 will exhibit a bug if you use a multimap with insertion-order preservation in org.metaborg.sdf2table.grammar.NormGrammar
     @TestFactory public Stream<DynamicTest> testBoth() throws ParseError {
         return testSuccessByAstString("foo baz", "List([Foo,Id(\"baz\")])");
     }

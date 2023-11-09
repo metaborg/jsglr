@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import org.spoofax.jsglr2.parser.Position;
 

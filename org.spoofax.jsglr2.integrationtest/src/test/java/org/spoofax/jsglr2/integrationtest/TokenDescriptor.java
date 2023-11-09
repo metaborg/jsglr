@@ -4,7 +4,7 @@ import static org.spoofax.terms.util.TermUtils.*;
 
 import java.util.Objects;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.IToken;

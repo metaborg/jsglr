@@ -3,7 +3,9 @@ package org.spoofax.jsglr2.integrationtest;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -19,18 +21,16 @@ import org.metaborg.parsetable.symbols.ISymbol;
 import org.metaborg.parsetable.symbols.ITerminalSymbol;
 import org.metaborg.sdf2table.io.ParseTableIO;
 import org.metaborg.sdf2table.parsetable.ParseTable;
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.integration.Sdf3ToParseTable;
-
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 
 public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
     protected String sdf3Resource;
-    protected static Table<String, ParseTableVariant, IParseTable> parseTableTable = HashBasedTable.create();
-    protected static Table<String, ParseTableVariant, Iterable<ParseTableWithOrigin>> parseTablesCache =
-        HashBasedTable.create();
+    protected static Map<Tuple2<String, ParseTableVariant>, IParseTable> parseTableTable = new HashMap<>();
+    protected static Map<Tuple2<String, ParseTableVariant>, Iterable<ParseTableWithOrigin>> parseTablesCache =
+        new HashMap<>();
 
     protected BaseTestWithSdf3ParseTables(String sdf3Resource) {
         this.sdf3Resource = sdf3Resource;
@@ -44,10 +44,10 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     }
 
     public ParseTableWithOrigin getParseTable(ParseTableVariant variant) throws Exception {
-        if(!parseTableTable.contains(sdf3Resource, variant)) {
-            parseTableTable.put(sdf3Resource, variant, getParseTable(variant, sdf3Resource));
+        if(!parseTableTable.containsKey(Tuple2.of(sdf3Resource, variant))) {
+            parseTableTable.put(Tuple2.of(sdf3Resource, variant), getParseTable(variant, sdf3Resource));
         }
-        return new ParseTableWithOrigin(parseTableTable.get(sdf3Resource, variant), ParseTableOrigin.Sdf3Generation);
+        return new ParseTableWithOrigin(parseTableTable.get(Tuple2.of(sdf3Resource, variant)), ParseTableOrigin.Sdf3Generation);
     }
 
     public IParseTable getParseTable(ParseTableVariant variant, String sdf3Resource) throws Exception {
@@ -55,7 +55,7 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
     }
 
     @Override public Iterable<ParseTableWithOrigin> getParseTables(ParseTableVariant variant) throws Exception {
-        if(!parseTablesCache.contains(sdf3Resource, variant)) {
+        if(!parseTablesCache.containsKey(Tuple2.of(sdf3Resource, variant))) {
             ParseTableWithOrigin parseTableWithOrigin = getParseTable(variant);
 
             IStrategoTerm parseTableTerm = ParseTableIO.generateATerm((ParseTable) parseTableWithOrigin.parseTable);
@@ -65,10 +65,10 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
 
             // Ensure that the parse table that directly comes from the generation behaves the same after
             // serialization/deserialization to/from term format
-            parseTablesCache.put(sdf3Resource, variant,
+            parseTablesCache.put(Tuple2.of(sdf3Resource, variant),
                 Arrays.asList(parseTableWithOrigin, parseTableWithOriginSerializedDeserialized));
         }
-        return parseTablesCache.get(sdf3Resource, variant);
+        return parseTablesCache.get(Tuple2.of(sdf3Resource, variant));
     }
 
     public String getNormalizedGrammar(boolean makePermissive) throws Exception {

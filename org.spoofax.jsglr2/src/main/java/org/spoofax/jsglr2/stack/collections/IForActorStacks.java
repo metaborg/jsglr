@@ -1,5 +1,7 @@
 package org.spoofax.jsglr2.stack.collections;
 
+import java.util.Iterator;
+
 import org.spoofax.jsglr2.stack.IStackNode;
 
 /*

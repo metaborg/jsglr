@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr.client.imploder.IToken;

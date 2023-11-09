@@ -5,14 +5,13 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-
-import com.google.common.collect.Iterables;
 
 public abstract class ForActorStacks
 //@formatter:off
@@ -73,7 +72,7 @@ public abstract class ForActorStacks
     }
 
     @Override public Iterator<StackNode> iterator() {
-        return Iterables.concat(forActorIterable(), forActorDelayed).iterator();
+        return Iterables2.fromConcat(forActorIterable(), forActorDelayed).iterator();
     }
 
 }

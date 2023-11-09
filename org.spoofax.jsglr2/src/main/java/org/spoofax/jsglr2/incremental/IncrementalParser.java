@@ -7,6 +7,7 @@ import java.util.*;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.*;
 import org.metaborg.parsetable.states.IState;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
@@ -24,8 +25,6 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
-
-import com.google.common.collect.Iterables;
 
 public class IncrementalParser
 // @formatter:off
@@ -238,7 +237,7 @@ public class IncrementalParser
         // Remove shift actions from the original actions list
         List<IAction> filteredActions = new ArrayList<>();
         // noinspection StaticPseudoFunctionalStyleMethod
-        Iterables.addAll(filteredActions, Iterables.filter(originalActions, a -> a.actionType() != ActionType.SHIFT));
+        Iterables2.stream(originalActions).filter(a -> a.actionType() != ActionType.SHIFT).forEach(filteredActions::add);
 
         // Optimization: if the production of the (only) reduce action
         // is the leftmost descendant of the to-be-reused lookahead, the reduce action can be removed.

@@ -18,8 +18,6 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
-import com.google.common.collect.Lists;
-
 public class IterativeTreeImploder
 //@formatter:off
    <ParseForest extends IParseForest,
@@ -99,7 +97,7 @@ public class IterativeTreeImploder
                                 .map(subTrees -> createNonTerminalSubTree(pseudoNode.production, subTrees))
                                 .collect(Collectors.toList()))
                         // In the case of a regular node, use the productions of the derivations
-                        : createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Lists.newArrayList(Iterables2.zip(
+                        : createPossiblyAmbiguousSubTree(pseudoNode.parseNode, Iterables2.toArrayList(Iterables2.zip(
                             pseudoNode.derivations, currentOut,
                             (derivation, subTrees) -> createNonTerminalSubTree(derivation.production(), subTrees))));
                     outputStack.peek().getLast().add(possiblyAmbiguousSubTree); // And add it to the output

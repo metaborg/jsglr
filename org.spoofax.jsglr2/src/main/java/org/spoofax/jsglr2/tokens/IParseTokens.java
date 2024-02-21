@@ -1,9 +1,10 @@
 package org.spoofax.jsglr2.tokens;
 
 import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.parser.Position;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ITokens;
 
 public interface IParseTokens extends ITokens {
 

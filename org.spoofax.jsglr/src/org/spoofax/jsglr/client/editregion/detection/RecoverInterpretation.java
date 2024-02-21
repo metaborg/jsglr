@@ -1,13 +1,14 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ITokenizer;
+import jsglr.shared.ImploderAttachment;
 
 /**
  * Represents a recovery based on discarding tokens associated to the term and/or its subterms.

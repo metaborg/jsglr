@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.client.imploder;
+package jsglr.shared;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class Token implements IToken, Cloneable {
         return tokens;
     }
 
-    protected void setTokenizer(ITokens tokenizer) {
+    public void setTokenizer(ITokens tokenizer) {
         this.tokens = tokenizer;
     }
 
@@ -60,7 +60,7 @@ public class Token implements IToken, Cloneable {
         return index;
     }
 
-    protected void setIndex(int index) {
+    public void setIndex(int index) {
         this.index = index;
     }
 

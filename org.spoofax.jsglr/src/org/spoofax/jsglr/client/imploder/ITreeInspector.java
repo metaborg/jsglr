@@ -2,6 +2,8 @@ package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
+import jsglr.shared.IToken;
+
 /**
  * @see ITreeFactory  Constructs tree nodes.
  * @see ISimpleTerm      An interface for tree nodes with tokens.

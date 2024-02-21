@@ -3,9 +3,10 @@ package org.spoofax.jsglr.client.editregion.detection;
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
-import org.spoofax.jsglr.client.imploder.ITokens;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+
+import jsglr.shared.AbstractTokenizer;
+import jsglr.shared.ITokens;
+import jsglr.shared.ImploderAttachment;
 
 /**
  * Detects possible erroneous code constructs and comments

@@ -3,7 +3,7 @@ package org.spoofax.jsglr.client.editregion.detection;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.spoofax.jsglr.client.imploder.IToken;
+import jsglr.shared.IToken;
 
 /**
  * Adds to the deletion offsets the (start)offset of non-layout tokens that are damaged by an insertion only 

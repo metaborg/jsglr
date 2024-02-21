@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.imploder;
 
-import org.spoofax.jsglr.client.imploder.ITokens;
+import jsglr.shared.ITokens;
 
 public class TokenizeResult<Tokens extends ITokens> {
 

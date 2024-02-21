@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.imploder.treefactory;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.putImploderAttachment;
+import static jsglr.shared.ImploderAttachment.putImploderAttachment;
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 import java.util.Collections;
@@ -14,9 +14,10 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermType;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.TermFactory;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ImploderAttachment;
 
 public class TokenizedTermTreeFactory implements ITokenizedTreeFactory<IStrategoTerm> {
 

@@ -24,7 +24,7 @@
 
         <dependency>
             <groupId>org.metaborg</groupId>
-            <artifactId>org.spoofax.jsglr</artifactId>
+            <artifactId>jsglr.shared</artifactId>
             <version>${metaborg-version}</version>
         </dependency>
 
@@ -39,11 +39,11 @@
             <version>${metaborg-version}</version>
         </dependency>
 
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.metaborg</groupId>

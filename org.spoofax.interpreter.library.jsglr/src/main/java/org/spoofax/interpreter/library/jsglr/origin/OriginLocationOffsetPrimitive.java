@@ -5,9 +5,10 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ImploderAttachment;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

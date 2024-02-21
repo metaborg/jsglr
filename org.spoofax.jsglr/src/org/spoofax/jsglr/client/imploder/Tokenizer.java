@@ -1,18 +1,22 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.min;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static jsglr.shared.IToken.Kind.*;
+import static jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.IKeywordRecognizer;
 import org.spoofax.jsglr.client.KeywordRecognizer;
 import org.spoofax.terms.SimpleTermVisitor;
+
+import jsglr.shared.AbstractTokenizer;
+import jsglr.shared.FilteredTokenIterator;
+import jsglr.shared.IToken;
+import jsglr.shared.Token;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -270,51 +274,6 @@ public class Tokenizer extends AbstractTokenizer {
 
     @Override public Iterator<IToken> iterator() {
         return new FilteredTokenIterator(allTokens());
-    }
-
-    /**
-     * This iterator filters out:
-     * <ul>
-     * <li>Tokens coming from ambiguous regions in the AST (only the first derivation is kept)
-     * <li>Empty tokens
-     * </ul>
-     */
-    public static class FilteredTokenIterator implements Iterator<IToken> {
-        final Iterator<IToken> allTokensIterator;
-        IToken next = null;
-        int offset = -1;
-
-        public FilteredTokenIterator(Iterable<IToken> allTokens) {
-            allTokensIterator = allTokens.iterator();
-            calculateNext();
-        }
-
-        @Override public boolean hasNext() {
-            return next != null;
-        }
-
-        @Override public IToken next() {
-            if(!hasNext())
-                throw new NoSuchElementException();
-
-            IToken res = next;
-            calculateNext();
-            return res;
-        }
-
-        private void calculateNext() {
-            while(allTokensIterator.hasNext()) {
-                next = allTokensIterator.next();
-                if(next.getKind() != TK_RESERVED && next.getKind() != TK_EOF
-                    && next.getStartOffset() == next.getEndOffset() + 1)
-                    continue; // Skip empty tokens (that are not the start or end token)
-                if(next.getStartOffset() > offset) {
-                    offset = next.getEndOffset();
-                    return;
-                }
-            }
-            next = null;
-        }
     }
 
     @Override public Iterable<IToken> allTokens() {

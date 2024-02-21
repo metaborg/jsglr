@@ -1,7 +1,7 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getImploderOrigin;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.hasImploderOrigin;
+import static jsglr.shared.ImploderAttachment.getImploderOrigin;
+import static jsglr.shared.ImploderAttachment.hasImploderOrigin;
 import static org.spoofax.terms.Term.isTermList;
 import static org.spoofax.terms.attachments.OriginAttachment.tryGetOrigin;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;

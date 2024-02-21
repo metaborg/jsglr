@@ -1,7 +1,8 @@
 package org.spoofax.jsglr.client;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
+
+import jsglr.shared.ITokenizer;
 
 /**
  * A tree builder that always builds a <code>null</code> tree.

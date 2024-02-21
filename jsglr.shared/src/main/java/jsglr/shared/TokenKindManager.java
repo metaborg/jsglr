@@ -1,6 +1,6 @@
-package org.spoofax.jsglr.client.imploder;
+package jsglr.shared;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static jsglr.shared.IToken.Kind.*;
 import static org.spoofax.terms.Term.intAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;

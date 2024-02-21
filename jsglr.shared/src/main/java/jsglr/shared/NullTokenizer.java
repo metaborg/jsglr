@@ -1,8 +1,8 @@
-package org.spoofax.jsglr.client.imploder;
+package jsglr.shared;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
-import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
 /**
@@ -92,7 +92,7 @@ public class NullTokenizer extends AbstractTokenizer {
 	}
 
 	@Override public Iterable<IToken> allTokens() {
-		return Iterables2.from(onlyToken);
+		return Arrays.asList(onlyToken);
 	}
 
 	public void setAst(ISimpleTerm ast) {

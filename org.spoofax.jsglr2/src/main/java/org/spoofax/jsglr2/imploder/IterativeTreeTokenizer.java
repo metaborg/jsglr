@@ -4,9 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Stack;
 
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
+
+import jsglr.shared.IToken;
 
 public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 

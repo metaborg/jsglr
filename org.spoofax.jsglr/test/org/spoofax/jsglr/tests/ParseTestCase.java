@@ -7,8 +7,8 @@
  */
 package org.spoofax.jsglr.tests;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
+import static jsglr.shared.ImploderAttachment.getLeftToken;
+import static jsglr.shared.ImploderAttachment.getSort;
 import static org.spoofax.jsglr.client.incremental.CommentDamageExpander.C_STYLE;
 
 import java.io.IOException;

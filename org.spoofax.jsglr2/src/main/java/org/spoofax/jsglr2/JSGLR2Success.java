@@ -2,8 +2,9 @@ package org.spoofax.jsglr2;
 
 import java.util.Collection;
 
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.messages.Message;
+
+import jsglr.shared.ITokens;
 
 public class JSGLR2Success<AbstractSyntaxTree> extends JSGLR2Result<AbstractSyntaxTree> {
 

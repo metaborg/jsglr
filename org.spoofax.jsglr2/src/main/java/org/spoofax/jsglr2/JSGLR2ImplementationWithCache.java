@@ -2,7 +2,6 @@ package org.spoofax.jsglr2;
 
 import java.util.HashMap;
 
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.IImplodeResult;
 import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ITokenizer;
@@ -11,6 +10,8 @@ import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+
+import jsglr.shared.ITokens;
 
 public class JSGLR2ImplementationWithCache
 // @formatter:off

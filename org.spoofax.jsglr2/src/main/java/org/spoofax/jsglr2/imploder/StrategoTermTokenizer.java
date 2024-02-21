@@ -2,9 +2,10 @@ package org.spoofax.jsglr2.imploder;
 
 import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 import org.spoofax.terms.util.TermUtils;
+
+import jsglr.shared.IToken;
 
 public class StrategoTermTokenizer extends TreeTokenizer<IStrategoTerm> {
     @Override protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {

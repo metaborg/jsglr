@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.spoofax.jsglr.client.imploder.IToken;
+import jsglr.shared.IToken;
 import org.spoofax.jsglr2.integrationtest.BaseTestWithSdf3ParseTables;
 import org.spoofax.jsglr2.integrationtest.TokenDescriptor;
 import org.spoofax.terms.ParseError;

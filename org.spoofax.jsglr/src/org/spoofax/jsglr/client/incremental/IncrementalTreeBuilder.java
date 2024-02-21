@@ -1,12 +1,12 @@
 package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.min;
-import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findLeftMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_UNKNOWN;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static jsglr.shared.AbstractTokenizer.findLeftMostLayoutToken;
+import static jsglr.shared.AbstractTokenizer.findRightMostLayoutToken;
+import static jsglr.shared.IToken.Kind.TK_EOF;
+import static jsglr.shared.IToken.Kind.TK_UNKNOWN;
+import static jsglr.shared.ImploderAttachment.getLeftToken;
+import static jsglr.shared.ImploderAttachment.getRightToken;
 import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
 
 import java.util.ArrayList;
@@ -15,10 +15,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.jsglr.client.imploder.ITreeFactory;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ITokenizer;
 
 /**
  * Constructs the output tree based on the old tree and the list of repaired tree nodes.

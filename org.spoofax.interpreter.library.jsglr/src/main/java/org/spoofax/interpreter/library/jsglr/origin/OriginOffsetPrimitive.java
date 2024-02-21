@@ -1,7 +1,7 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static jsglr.shared.ImploderAttachment.getLeftToken;
+import static jsglr.shared.ImploderAttachment.getRightToken;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.ISimpleTerm;

@@ -2,9 +2,9 @@ package org.spoofax.jsglr.client.editregion.detection;
 
 import java.util.ArrayList;
 
-import org.spoofax.jsglr.client.imploder.AbstractTokenizer;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
+import jsglr.shared.AbstractTokenizer;
+import jsglr.shared.IToken;
+import jsglr.shared.ITokens;
 
 /**
  * Determines the tokens in the correct term that are (possible) damaged

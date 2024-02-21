@@ -1,5 +1,4 @@
-package org.spoofax.jsglr.client.imploder;
-
+package jsglr.shared;
 
 /** 
  * An imploder attachment for a list node,

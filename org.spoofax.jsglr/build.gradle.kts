@@ -13,6 +13,7 @@ dependencies {
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
   implementation(compositeBuild("org.metaborg.util"))
   api(compositeBuild("org.metaborg.parsetable"))
+  api(compositeBuild("jsglr.shared"))
 }
 
 sourceSets {

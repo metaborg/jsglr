@@ -1,7 +1,7 @@
 package org.spoofax.jsglr.client.incremental;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getElementSort;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getSort;
+import static jsglr.shared.ImploderAttachment.getElementSort;
+import static jsglr.shared.ImploderAttachment.getSort;
 import static org.spoofax.terms.Term.applAt;
 import static org.spoofax.terms.Term.asJavaString;
 import static org.spoofax.terms.Term.isTermAppl;
@@ -23,7 +23,8 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.Label;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.ProductionType;
-import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
+
+import jsglr.shared.ProductionAttributeReader;
 
 /**
  * A collection of incremental sorts for a particular language

@@ -1,4 +1,4 @@
-package org.spoofax.jsglr.client.imploder;
+package jsglr.shared;
 
 import java.io.Serializable;
 

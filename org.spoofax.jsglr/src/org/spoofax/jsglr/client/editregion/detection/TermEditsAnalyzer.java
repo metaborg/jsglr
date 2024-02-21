@@ -1,7 +1,7 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static jsglr.shared.ImploderAttachment.getLeftToken;
+import static jsglr.shared.ImploderAttachment.getRightToken;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;

@@ -1,15 +1,16 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.*;
+import static jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
 import org.spoofax.terms.attachments.OriginAttachment;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ITokenizer;
 
 /**
  * Tokens + TokenKind

@@ -32,7 +32,6 @@ import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermType;
-import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.jsglr.io.ParseTableManager;
 import org.spoofax.jsglr.io.SGLR;
@@ -41,6 +40,8 @@ import org.spoofax.terms.ParseError;
 import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
+
+import jsglr.shared.ProductionAttributeReader;
 
 import static java.util.Arrays.asList;
 import static org.spoofax.terms.Term.intAt;

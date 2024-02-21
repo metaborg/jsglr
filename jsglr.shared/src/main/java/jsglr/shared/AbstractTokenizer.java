@@ -1,7 +1,7 @@
-package org.spoofax.jsglr.client.imploder;
+package jsglr.shared;
 
-import static org.spoofax.jsglr.client.imploder.IToken.*;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static jsglr.shared.IToken.*;
+import static jsglr.shared.IToken.Kind.*;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

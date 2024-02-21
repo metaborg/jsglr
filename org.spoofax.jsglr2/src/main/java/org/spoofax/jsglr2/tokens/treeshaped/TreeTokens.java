@@ -1,16 +1,17 @@
 package org.spoofax.jsglr2.tokens.treeshaped;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_EOF;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_RESERVED;
+import static jsglr.shared.IToken.Kind.TK_EOF;
+import static jsglr.shared.IToken.Kind.TK_RESERVED;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parser.Position;
+
+import jsglr.shared.IToken;
+import jsglr.shared.ITokens;
 
 public class TreeTokens implements ITokens {
 

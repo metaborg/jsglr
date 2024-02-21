@@ -7,6 +7,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.ITreeBuilder;
 
+import jsglr.shared.IToken;
+
 /**
  * Constructs tree nodes for imploded parse trees.
  * 

@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.metaborg.parsetable.symbols.ISymbol;
-import org.spoofax.jsglr.client.imploder.IToken;
+
+import jsglr.shared.IToken;
 
 public interface ITokenizedTreeFactory<T> {
 

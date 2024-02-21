@@ -1,9 +1,10 @@
 package org.spoofax.jsglr2.messages;
 
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.parser.Position;
 
 import jakarta.annotation.Nullable;
+import jsglr.shared.IToken;
+
 import java.io.Serializable;
 
 public class SourceRegion implements Serializable {

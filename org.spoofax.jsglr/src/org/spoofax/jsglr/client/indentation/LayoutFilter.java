@@ -11,8 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseTable;
-import org.spoofax.jsglr.client.imploder.ProductionAttributeReader;
 import org.spoofax.terms.Term;
+
+import jsglr.shared.ProductionAttributeReader;
 
 /**
  * @author Sebastian Erdweg <seba at informatik uni-marburg de>

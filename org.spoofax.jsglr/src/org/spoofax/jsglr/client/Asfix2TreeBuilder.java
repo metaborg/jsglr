@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
 
-import jsglr.shared.ITokenizer;
+import mb.jsglr.shared.ITokenizer;
 
 public class Asfix2TreeBuilder extends BottomupTreeBuilder {
 

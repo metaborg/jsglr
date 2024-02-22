@@ -29,7 +29,7 @@ import org.spoofax.jsglr.shared.SGLRException;
 import org.spoofax.jsglr.shared.Tools;
 import org.spoofax.terms.util.NotImplementedException;
 
-import jsglr.shared.ProductionAttributeReader;
+import mb.jsglr.shared.ProductionAttributeReader;
 
 /**
  * @author Karl Trygve Kalleberg <karltk near strategoxt.org>

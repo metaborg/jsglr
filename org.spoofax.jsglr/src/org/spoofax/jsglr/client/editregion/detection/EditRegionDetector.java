@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import jsglr.shared.AbstractTokenizer;
-import jsglr.shared.ITokens;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.AbstractTokenizer;
+import mb.jsglr.shared.ITokens;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * Detects possible erroneous code constructs and comments

@@ -2,9 +2,9 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static jsglr.shared.AbstractTokenizer.isErrorInRange;
-import static jsglr.shared.ImploderAttachment.getLeftToken;
-import static jsglr.shared.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.AbstractTokenizer.isErrorInRange;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.DEBUG;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 /**
  * Constructs an input string for incremental parsing.

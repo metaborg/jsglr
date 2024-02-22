@@ -1,13 +1,13 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static jsglr.shared.ImploderAttachment.getLeftToken;
-import static jsglr.shared.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

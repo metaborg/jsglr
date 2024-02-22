@@ -1,4 +1,4 @@
-package jsglr.shared;
+package mb.jsglr.shared;
 
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.applAt;

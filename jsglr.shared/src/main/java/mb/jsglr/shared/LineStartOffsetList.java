@@ -1,4 +1,4 @@
-package jsglr.shared;
+package mb.jsglr.shared;
 
 import java.io.Serializable;
 

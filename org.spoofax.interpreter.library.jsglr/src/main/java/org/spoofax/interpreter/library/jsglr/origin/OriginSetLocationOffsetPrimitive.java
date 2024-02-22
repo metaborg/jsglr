@@ -6,7 +6,7 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * Tokens

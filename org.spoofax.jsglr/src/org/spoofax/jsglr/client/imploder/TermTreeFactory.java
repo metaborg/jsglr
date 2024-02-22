@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
-import static jsglr.shared.ImploderAttachment.getElementSort;
-import static jsglr.shared.ImploderAttachment.getSort;
-import static jsglr.shared.ImploderAttachment.putImploderAttachment;
+import static mb.jsglr.shared.ImploderAttachment.getElementSort;
+import static mb.jsglr.shared.ImploderAttachment.getSort;
+import static mb.jsglr.shared.ImploderAttachment.putImploderAttachment;
 import static org.spoofax.terms.StrategoListIterator.iterable;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.isTermString;
@@ -28,8 +28,8 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ParentAttachment;
 import org.spoofax.terms.util.NotImplementedException;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

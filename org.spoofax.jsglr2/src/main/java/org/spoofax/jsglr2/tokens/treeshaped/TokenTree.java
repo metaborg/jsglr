@@ -12,7 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.parser.Position;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 public class TokenTree {
 

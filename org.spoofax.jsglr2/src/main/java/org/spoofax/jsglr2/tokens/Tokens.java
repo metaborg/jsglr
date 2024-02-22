@@ -1,15 +1,15 @@
 package org.spoofax.jsglr2.tokens;
 
-import static jsglr.shared.IToken.Kind.*;
+import static mb.jsglr.shared.IToken.Kind.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
 import jakarta.annotation.Nonnull;
-import jsglr.shared.FilteredTokenIterator;
-import jsglr.shared.IToken;
-import jsglr.shared.Token;
+import mb.jsglr.shared.FilteredTokenIterator;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.Token;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parser.Position;

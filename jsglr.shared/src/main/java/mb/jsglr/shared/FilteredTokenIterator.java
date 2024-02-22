@@ -1,7 +1,7 @@
-package jsglr.shared;
+package mb.jsglr.shared;
 
-import static jsglr.shared.IToken.Kind.TK_EOF;
-import static jsglr.shared.IToken.Kind.TK_RESERVED;
+import static mb.jsglr.shared.IToken.Kind.TK_EOF;
+import static mb.jsglr.shared.IToken.Kind.TK_RESERVED;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

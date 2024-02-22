@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.spoofax.jsglr2.messages.Message;
 
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.ITokens;
 
 public class JSGLR2Success<AbstractSyntaxTree> extends JSGLR2Result<AbstractSyntaxTree> {
 

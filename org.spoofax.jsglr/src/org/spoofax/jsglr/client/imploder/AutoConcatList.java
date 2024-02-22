@@ -8,7 +8,7 @@ import java.util.ListIterator;
 
 import org.spoofax.terms.util.NotImplementedException;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 /**
  * A list implementation that will automatically 

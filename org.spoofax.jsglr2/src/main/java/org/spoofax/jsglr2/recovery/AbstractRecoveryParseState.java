@@ -20,8 +20,8 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
 
 public abstract class AbstractRecoveryParseState
 //@formatter:off

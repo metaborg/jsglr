@@ -1,6 +1,6 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static jsglr.shared.ImploderAttachment.*;
+import static mb.jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
@@ -9,8 +9,8 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.OriginAttachment;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ITokenizer;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokenizer;
 
 /**
  * Tokens

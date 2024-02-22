@@ -1,14 +1,14 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static jsglr.shared.ImploderAttachment.*;
+import static mb.jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ITokenizer;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokenizer;
 
 /**
  * Tokens, ignoring layout

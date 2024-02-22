@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.tests;
 
-import static jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.InvalidParseTableException;

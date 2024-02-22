@@ -6,7 +6,7 @@ import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 public class TokenizedStrategoTermImploder
 //@formatter:off

@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.imploder;
 
 import org.spoofax.jsglr2.JSGLR2Request;
 
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.ITokens;
 
 public interface ITokenizer<ImplodeIntermediateResult, TokensResult extends ITokens> {
 

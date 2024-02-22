@@ -7,8 +7,8 @@ import java.util.Objects;
 import jakarta.annotation.Nullable;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import jsglr.shared.IToken;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ImploderAttachment;
 
 public final class TokenDescriptor {
 

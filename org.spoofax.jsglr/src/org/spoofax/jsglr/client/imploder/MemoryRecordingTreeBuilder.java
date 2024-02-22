@@ -5,7 +5,7 @@ import org.spoofax.jsglr.client.AbstractParseNode;
 import org.spoofax.jsglr.client.ITreeBuilder;
 import org.spoofax.jsglr.client.ParseTable;
 
-import jsglr.shared.ITokenizer;
+import mb.jsglr.shared.ITokenizer;
 
 public class MemoryRecordingTreeBuilder implements ITreeBuilder {
 

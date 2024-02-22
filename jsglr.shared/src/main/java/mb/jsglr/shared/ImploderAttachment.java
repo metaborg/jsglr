@@ -1,6 +1,6 @@
-package jsglr.shared;
+package mb.jsglr.shared;
 
-import static jsglr.shared.IToken.Kind.TK_UNKNOWN;
+import static mb.jsglr.shared.IToken.Kind.TK_UNKNOWN;
 import static org.spoofax.terms.util.TermUtils.toJavaInt;
 import static org.spoofax.terms.util.TermUtils.toJavaString;
 

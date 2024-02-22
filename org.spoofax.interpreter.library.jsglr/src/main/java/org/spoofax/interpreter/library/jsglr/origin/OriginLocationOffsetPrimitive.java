@@ -7,8 +7,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.OriginAttachment;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

@@ -2,7 +2,7 @@ package org.spoofax.jsglr.client;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
-import jsglr.shared.ITokenizer;
+import mb.jsglr.shared.ITokenizer;
 
 /**
  * Top-level interface for participants of the tree building process during parsing.

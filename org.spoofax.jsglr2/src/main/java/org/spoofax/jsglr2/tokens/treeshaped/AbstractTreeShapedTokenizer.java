@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.tokens.treeshaped;
 
-import static jsglr.shared.IToken.Kind.TK_NO_TOKEN_KIND;
+import static mb.jsglr.shared.IToken.Kind.TK_NO_TOKEN_KIND;
 import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
 import java.util.ArrayList;

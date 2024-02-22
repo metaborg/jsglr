@@ -17,7 +17,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.OriginAttachment;
 
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 public class Injections {
 

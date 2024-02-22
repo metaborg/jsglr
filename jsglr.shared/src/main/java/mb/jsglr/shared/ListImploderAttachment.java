@@ -1,4 +1,4 @@
-package jsglr.shared;
+package mb.jsglr.shared;
 
 /** 
  * An imploder attachment for a list node,

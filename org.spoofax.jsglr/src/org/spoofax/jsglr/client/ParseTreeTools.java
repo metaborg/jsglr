@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.client;
 
-import jsglr.shared.ProductionAttributeReader;
+import mb.jsglr.shared.ProductionAttributeReader;
 
 /**
  * @deprecated Use {@link ProductionAttributeReader} instead.

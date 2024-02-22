@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 public final class OriginDescriptor {
 

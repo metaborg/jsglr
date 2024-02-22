@@ -8,7 +8,7 @@ import org.spoofax.terms.StrategoAppl;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.ParentAttachment;
 
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * Returns what is most probably the origin term (retrieved from inspecting the subterms) 

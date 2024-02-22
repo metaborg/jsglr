@@ -2,8 +2,8 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static jsglr.shared.ImploderAttachment.getLeftToken;
-import static jsglr.shared.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
 
@@ -16,7 +16,7 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.terms.attachments.ParentAttachment;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 /**
  * Expands the damage region to the two

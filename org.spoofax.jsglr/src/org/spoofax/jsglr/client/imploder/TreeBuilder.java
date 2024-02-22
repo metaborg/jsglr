@@ -2,9 +2,9 @@ package org.spoofax.jsglr.client.imploder;
 
 
 import static java.lang.Math.max;
-import static jsglr.shared.IToken.Kind.TK_EOF;
-import static jsglr.shared.IToken.Kind.TK_ERROR_EOF_UNEXPECTED;
-import static jsglr.shared.IToken.Kind.TK_UNKNOWN;
+import static mb.jsglr.shared.IToken.Kind.TK_EOF;
+import static mb.jsglr.shared.IToken.Kind.TK_ERROR_EOF_UNEXPECTED;
+import static mb.jsglr.shared.IToken.Kind.TK_UNKNOWN;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -21,12 +21,12 @@ import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.jsglr.client.RecoveryConnector;
 import org.spoofax.terms.util.PushbackStringIterator;
 
-import jsglr.shared.AbstractTokenizer;
-import jsglr.shared.IToken;
-import jsglr.shared.ITokenizer;
-import jsglr.shared.LabelInfo;
-import jsglr.shared.NullTokenizer;
-import jsglr.shared.ProductionAttributeReader;
+import mb.jsglr.shared.AbstractTokenizer;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokenizer;
+import mb.jsglr.shared.LabelInfo;
+import mb.jsglr.shared.NullTokenizer;
+import mb.jsglr.shared.ProductionAttributeReader;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

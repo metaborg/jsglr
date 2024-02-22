@@ -2,8 +2,8 @@ package org.spoofax.jsglr.client.editregion.detection;
 
 import java.util.ArrayList;
 
-import jsglr.shared.IToken;
-import jsglr.shared.Token;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.Token;
 
 /**
  * Determines the comment regions that are edited and therefore (possible) damaged.

@@ -6,7 +6,7 @@ import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.ITokens;
 
 public abstract class ParseResult<ParseForest extends IParseForest> {
 

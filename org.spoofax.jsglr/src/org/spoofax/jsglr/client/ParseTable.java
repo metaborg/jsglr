@@ -41,7 +41,7 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
-import jsglr.shared.ProductionAttributeReader;
+import mb.jsglr.shared.ProductionAttributeReader;
 
 import static java.util.Arrays.asList;
 import static org.spoofax.terms.Term.intAt;

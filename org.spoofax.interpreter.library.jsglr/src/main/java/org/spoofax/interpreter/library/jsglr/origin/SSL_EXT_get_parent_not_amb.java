@@ -7,7 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.ParentAttachment;
 
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * @author Eduardo Souza

@@ -11,7 +11,7 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.ITokens;
 
 public class JSGLR2ImplementationWithCache
 // @formatter:off

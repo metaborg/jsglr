@@ -4,7 +4,7 @@ import org.metaborg.parsetable.symbols.ISymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.treefactory.TokenizedTermTreeFactory;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 public class IterativeStrategoTermTokenizer extends IterativeTreeTokenizer<IStrategoTerm> {
     @Override protected void configure(IStrategoTerm term, String sort, IToken leftToken, IToken rightToken) {

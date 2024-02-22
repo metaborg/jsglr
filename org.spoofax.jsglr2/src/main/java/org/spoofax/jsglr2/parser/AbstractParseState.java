@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.ITokens;
 
 public abstract class AbstractParseState<InputStack extends IInputStack, StackNode extends IStackNode> {
 

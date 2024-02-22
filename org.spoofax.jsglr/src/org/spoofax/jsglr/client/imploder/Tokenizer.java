@@ -1,8 +1,8 @@
 package org.spoofax.jsglr.client.imploder;
 
 import static java.lang.Math.min;
-import static jsglr.shared.IToken.Kind.*;
-import static jsglr.shared.ImploderAttachment.*;
+import static mb.jsglr.shared.IToken.Kind.*;
+import static mb.jsglr.shared.ImploderAttachment.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,10 +13,10 @@ import org.spoofax.jsglr.client.IKeywordRecognizer;
 import org.spoofax.jsglr.client.KeywordRecognizer;
 import org.spoofax.terms.SimpleTermVisitor;
 
-import jsglr.shared.AbstractTokenizer;
-import jsglr.shared.FilteredTokenIterator;
-import jsglr.shared.IToken;
-import jsglr.shared.Token;
+import mb.jsglr.shared.AbstractTokenizer;
+import mb.jsglr.shared.FilteredTokenIterator;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.Token;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

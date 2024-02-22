@@ -5,8 +5,8 @@ import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-import jsglr.shared.IToken;
-import jsglr.shared.ITokens;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
 
 public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.SubTree<Tree>, ITokens> {
     class SubTree {

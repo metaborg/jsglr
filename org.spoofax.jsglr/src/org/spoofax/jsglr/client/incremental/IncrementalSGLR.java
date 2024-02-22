@@ -2,8 +2,8 @@ package org.spoofax.jsglr.client.incremental;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static jsglr.shared.ImploderAttachment.getLeftToken;
-import static jsglr.shared.ImploderAttachment.getSort;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getSort;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import java.util.Collections;
@@ -24,8 +24,8 @@ import org.spoofax.jsglr.shared.TokenExpectedException;
 import org.spoofax.terms.attachments.ParentTermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
-import jsglr.shared.AbstractTokenizer;
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.AbstractTokenizer;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * An incremental parsing extension of SGLR.

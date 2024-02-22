@@ -1,6 +1,6 @@
 package org.spoofax.jsglr.client.editregion.detection;
 
-import static jsglr.shared.ImploderAttachment.getSort;
+import static mb.jsglr.shared.ImploderAttachment.getSort;
 
 import java.util.List;
 

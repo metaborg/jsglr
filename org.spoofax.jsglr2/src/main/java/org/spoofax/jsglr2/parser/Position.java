@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.parser;
 
 import org.metaborg.parsetable.characterclasses.CharacterClassFactory;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 public class Position {
 

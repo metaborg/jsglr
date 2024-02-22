@@ -13,7 +13,7 @@ import org.spoofax.jsglr.client.ParseNode;
 import org.spoofax.jsglr.client.ParseTable;
 import org.spoofax.terms.Term;
 
-import jsglr.shared.ProductionAttributeReader;
+import mb.jsglr.shared.ProductionAttributeReader;
 
 /**
  * @author Sebastian Erdweg <seba at informatik uni-marburg de>

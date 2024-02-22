@@ -2,7 +2,7 @@ package org.spoofax.jsglr.client.imploder;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 /**
  * @see ITreeFactory  Constructs tree nodes.

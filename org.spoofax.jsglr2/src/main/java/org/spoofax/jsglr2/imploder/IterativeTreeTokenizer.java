@@ -7,7 +7,7 @@ import java.util.Stack;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-import jsglr.shared.IToken;
+import mb.jsglr.shared.IToken;
 
 public abstract class IterativeTreeTokenizer<Tree> extends TreeTokenizer<Tree> {
 

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.ParseTableVariant;
 import mb.util.vfs2.resource.ResourceUtils;
+import org.opentest4j.AssertionFailedError;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import mb.jsglr.shared.IToken;
@@ -162,12 +163,16 @@ public abstract class BaseTest implements WithParseTable {
         });
     }
 
+    protected Stream<DynamicTest> testSuccessByAstString(String inputString, String expectedOutputAstString, boolean serializeNormGrammar) {
+        return testSuccess(inputString, expectedOutputAstString, null, false, serializeNormGrammar);
+    }
+
     protected Stream<DynamicTest> testSuccessByAstString(String inputString, String expectedOutputAstString) {
-        return testSuccess(inputString, expectedOutputAstString, null, false);
+        return testSuccess(inputString, expectedOutputAstString, null, false, false);
     }
 
     protected Stream<DynamicTest> testSuccessByExpansions(String inputString, String expectedOutputAstString) {
-        return testSuccess(inputString, expectedOutputAstString, null, true);
+        return testSuccess(inputString, expectedOutputAstString, null, true, false);
     }
 
     protected Stream<DynamicTest> testIncrementalSuccessByExpansions(String[] inputStrings,
@@ -177,25 +182,34 @@ public abstract class BaseTest implements WithParseTable {
 
     protected Stream<DynamicTest> testSuccessByAstString(String startSymbol, String inputString,
         String expectedOutputAstString) {
-        return testSuccess(inputString, expectedOutputAstString, startSymbol, false);
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, false, false);
     }
 
     protected Stream<DynamicTest> testSuccessByExpansions(String startSymbol, String inputString,
         String expectedOutputAstString) {
-        return testSuccess(inputString, expectedOutputAstString, startSymbol, true);
+        return testSuccess(inputString, expectedOutputAstString, startSymbol, true, false);
     }
 
     private Stream<DynamicTest> testSuccess(String inputString, String expectedOutputAstString, String startSymbol,
-        boolean equalityByExpansions) {
+        boolean equalityByExpansions, boolean serializeNormGrammar) {
         List<IStrategoTerm> previous = new ArrayList<>(1); // Variable used in lambda should be effectively final
         return testPerVariant(getTestVariants(), variant -> () -> {
+            BaseTest.TestVariant variant2 = variant;
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
             if(previous.isEmpty())
                 previous.add(actualOutputAst);
-            else
-                assertEqualAST("Variant '" + variant.name() + "' does not have the same AST as the first variant",
-                    previous.get(0), actualOutputAst);
+            else {
+                if(serializeNormGrammar) {
+                    variant.parseTableWithOrigin.parseTable.serializeNormGrammar(variant.name());
+                }
+                try {
+                    assertEqualAST("Variant '" + variant.name() + "' does not have the same AST as the first variant",
+                            previous.get(0), actualOutputAst);
+                } catch(AssertionFailedError e) {
+                    throw e;
+                }
+            }
 
             assertEqualAST("Incorrect AST", expectedOutputAstString, actualOutputAst, equalityByExpansions);
         });

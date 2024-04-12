@@ -1,16 +1,17 @@
 package org.spoofax.jsglr.tests;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokenizer;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr.client.imploder.TreeBuilder;
+
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokenizer;
+import mb.jsglr.shared.ITokens;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.benchmark.jsglr2.util;
 
-import org.spoofax.jsglr.client.imploder.ITokens;
+import mb.jsglr.shared.ITokens;
 import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.IImplodeResult;

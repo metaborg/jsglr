@@ -7,9 +7,11 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.parser.Position;
+
+import mb.jsglr.shared.IToken.Kind;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
 
 public class TreeToken implements IToken, Cloneable {
 

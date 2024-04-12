@@ -1,17 +1,17 @@
 package org.spoofax.jsglr2.tokens;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static mb.jsglr.shared.IToken.Kind.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
 import jakarta.annotation.Nonnull;
+import mb.jsglr.shared.FilteredTokenIterator;
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.Token;
 
 import org.metaborg.parsetable.productions.IProduction;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.Token;
-import org.spoofax.jsglr.client.imploder.Tokenizer;
 import org.spoofax.jsglr2.parser.Position;
 
 public class Tokens implements IParseTokens {
@@ -56,7 +56,7 @@ public class Tokens implements IParseTokens {
     public IToken makeToken(Position startPosition, Position endPosition, IProduction production) {
         IToken token = new Token(this, fileName, tokens.size(), startPosition.line, startPosition.column,
             startPosition.offset, endPosition.offset - 1,
-            startPosition.equals(endPosition) ? TK_NO_TOKEN_KIND : IToken.getTokenKind(production));
+            startPosition.equals(endPosition) ? TK_NO_TOKEN_KIND : IProduction.getTokenKind(production));
 
         tokens.add(token);
 
@@ -64,7 +64,7 @@ public class Tokens implements IParseTokens {
     }
 
     @Override @Nonnull public Iterator<IToken> iterator() {
-        return new Tokenizer.FilteredTokenIterator(allTokens());
+        return new FilteredTokenIterator(allTokens());
     }
 
     @Override @Nonnull public Iterable<IToken> allTokens() {

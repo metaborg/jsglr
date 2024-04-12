@@ -1,6 +1,12 @@
-package org.spoofax.jsglr.client.imploder;
+package mb.jsglr.shared;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static mb.jsglr.shared.IToken.Kind.TK_IDENTIFIER;
+import static mb.jsglr.shared.IToken.Kind.TK_KEYWORD;
+import static mb.jsglr.shared.IToken.Kind.TK_LAYOUT;
+import static mb.jsglr.shared.IToken.Kind.TK_NUMBER;
+import static mb.jsglr.shared.IToken.Kind.TK_OPERATOR;
+import static mb.jsglr.shared.IToken.Kind.TK_STRING;
+import static mb.jsglr.shared.IToken.Kind.TK_VAR;
 import static org.spoofax.terms.Term.intAt;
 import static org.spoofax.terms.Term.isTermAppl;
 import static org.spoofax.terms.Term.termAt;

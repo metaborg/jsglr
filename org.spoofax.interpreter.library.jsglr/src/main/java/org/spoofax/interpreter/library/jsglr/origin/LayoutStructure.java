@@ -1,13 +1,18 @@
 package org.spoofax.interpreter.library.jsglr.origin;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.*;
 import org.spoofax.terms.StrategoSubList;
+
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
+import mb.jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.Token;
 
 /**
  * Provides access to the layout structure (text fragments and offsets) surrounding a node

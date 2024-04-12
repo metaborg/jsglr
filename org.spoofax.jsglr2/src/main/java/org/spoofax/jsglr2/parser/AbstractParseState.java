@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Queue;
 
 import org.metaborg.parsetable.query.ParsingMode;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.messages.Message;
@@ -13,6 +12,8 @@ import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+
+import mb.jsglr.shared.ITokens;
 
 public abstract class AbstractParseState<InputStack extends IInputStack, StackNode extends IStackNode> {
 

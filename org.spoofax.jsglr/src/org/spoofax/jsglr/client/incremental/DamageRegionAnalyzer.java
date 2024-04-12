@@ -1,9 +1,9 @@
 package org.spoofax.jsglr.client.incremental;
 
-import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findLeftMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.AbstractTokenizer.findRightMostLayoutToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.AbstractTokenizer.findLeftMostLayoutToken;
+import static mb.jsglr.shared.AbstractTokenizer.findRightMostLayoutToken;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
 import static org.spoofax.jsglr.client.incremental.IncrementalSGLR.isRangeOverlap;
 import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
 
@@ -12,7 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
+
+import mb.jsglr.shared.IToken;
 
 /**
  * Analyzes the trees before and after incremental parsing,

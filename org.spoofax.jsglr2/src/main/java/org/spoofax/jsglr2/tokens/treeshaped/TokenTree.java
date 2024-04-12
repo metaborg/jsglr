@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.parser.Position;
+
+import mb.jsglr.shared.IToken;
 
 public class TokenTree {
 

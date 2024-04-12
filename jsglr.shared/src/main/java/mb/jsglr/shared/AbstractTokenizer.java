@@ -1,7 +1,11 @@
-package org.spoofax.jsglr.client.imploder;
+package mb.jsglr.shared;
 
-import static org.spoofax.jsglr.client.imploder.IToken.*;
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static mb.jsglr.shared.IToken.Kind.TK_EOF;
+import static mb.jsglr.shared.IToken.Kind.TK_ERROR;
+import static mb.jsglr.shared.IToken.Kind.TK_ERROR_LAYOUT;
+import static mb.jsglr.shared.IToken.Kind.TK_LAYOUT;
+
+import mb.jsglr.shared.IToken.Kind;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

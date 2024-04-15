@@ -1,7 +1,6 @@
-package org.spoofax.jsglr.client.imploder;
+package mb.jsglr.shared;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.jsglr.client.IKeywordRecognizer;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -45,7 +44,7 @@ public interface ITokenizer extends ITokens {
 	 * Creates artificial token at keyword boundaries
 	 * inside skipped regions of code when
 	 * invoked for each character in a skipped/erroneous region of code.
-	 * Required for keyword highlighting with {@link IKeywordRecognizer}.
+	 * Required for keyword highlighting with {@link org.spoofax.jsglr.client.IKeywordRecognizer}.
 	 *
 	 * Additionally, ensures that {@link #isSyntaxCorrect()} returns false.
 	 *

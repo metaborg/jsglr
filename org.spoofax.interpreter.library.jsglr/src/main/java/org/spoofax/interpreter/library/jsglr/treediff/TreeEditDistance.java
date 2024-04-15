@@ -1,8 +1,8 @@
 package org.spoofax.interpreter.library.jsglr.treediff;
 
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getLeftToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getRightToken;
-import static org.spoofax.jsglr.client.imploder.ImploderAttachment.getTokenizer;
+import static mb.jsglr.shared.ImploderAttachment.getLeftToken;
+import static mb.jsglr.shared.ImploderAttachment.getRightToken;
+import static mb.jsglr.shared.ImploderAttachment.getTokenizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

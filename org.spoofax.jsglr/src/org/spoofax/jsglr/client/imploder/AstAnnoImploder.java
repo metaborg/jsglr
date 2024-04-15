@@ -19,6 +19,8 @@ import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.util.NotImplementedException;
 
+import mb.jsglr.shared.IToken;
+
 /**
  * Implodes {ast} annotations in asfix trees.
  * 

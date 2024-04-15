@@ -1,11 +1,12 @@
 package org.spoofax.jsglr2.imploder;
 
 import org.metaborg.parsetable.symbols.ISymbol;
-import org.spoofax.jsglr.client.imploder.IToken;
-import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
+
+import mb.jsglr.shared.IToken;
+import mb.jsglr.shared.ITokens;
 
 public abstract class TreeTokenizer<Tree> implements ITokenizer<TreeImploder.SubTree<Tree>, ITokens> {
     class SubTree {

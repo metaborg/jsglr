@@ -1,6 +1,6 @@
 package org.spoofax.jsglr2.integrationtest.features;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.*;
+import static mb.jsglr.shared.IToken.Kind.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

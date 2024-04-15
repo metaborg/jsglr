@@ -10,6 +10,7 @@ dependencies {
 
   api(project(":org.spoofax.jsglr"))
   api(project(":org.spoofax.jsglr2"))
+  api(project(":jsglr.shared"))
   api(compositeBuild("org.spoofax.interpreter.core"))
   testCompileOnly("junit:junit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")

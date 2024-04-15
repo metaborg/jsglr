@@ -40,6 +40,12 @@
 			<artifactId>org.metaborg.parsetable</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>jsglr.shared</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

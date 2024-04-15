@@ -8,6 +8,8 @@ import java.util.ListIterator;
 
 import org.spoofax.terms.util.NotImplementedException;
 
+import mb.jsglr.shared.IToken;
+
 /**
  * A list implementation that will automatically 
  * concatenate itself with any added lists

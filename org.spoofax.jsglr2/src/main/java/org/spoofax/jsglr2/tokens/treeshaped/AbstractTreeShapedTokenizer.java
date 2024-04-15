@@ -1,14 +1,14 @@
 package org.spoofax.jsglr2.tokens.treeshaped;
 
-import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_NO_TOKEN_KIND;
+import static mb.jsglr.shared.IToken.Kind.TK_NO_TOKEN_KIND;
 import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr2.imploder.ITokenizer;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.parser.Position;
@@ -43,7 +43,7 @@ public abstract class AbstractTreeShapedTokenizer<TokensResult extends TreeToken
                 Position endPosition = pivotPosition.step(tokens.getInput(), tree.width);
                 Position positionRange = positionRange(pivotPosition, endPosition);
                 return new TokenTree(tree,
-                    new TreeToken(tokens, positionRange, IToken.getTokenKind(tree.production), tree.tree));
+                    new TreeToken(tokens, positionRange, IProduction.getTokenKind(tree.production), tree.tree));
             } else
                 return new TokenTree(tree,
                     tree.tree == null ? null : new TreeToken(tokens, EMPTY_RANGE, TK_NO_TOKEN_KIND, tree.tree));

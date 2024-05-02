@@ -46,6 +46,11 @@
 			<artifactId>jsglr.shared</artifactId>
 			<version>${metaborg-version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

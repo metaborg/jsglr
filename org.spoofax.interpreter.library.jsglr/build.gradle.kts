@@ -8,14 +8,15 @@ plugins {
 fun compositeBuild(name: String) = "$group:$name:$version"
 val spoofax2Version: String by ext
 dependencies {
-    api(platform("org.metaborg:parent:$spoofax2Version"))
+    api(platform(libs.metaborg.platform))
 
     api(project(":org.spoofax.jsglr"))
     api(project(":org.spoofax.jsglr2"))
     api(project(":jsglr.shared"))
-    api(compositeBuild("org.spoofax.interpreter.core"))
-    testCompileOnly("junit:junit")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    api(libs.interpreter.core)
+    testImplementation(libs.junit)
+    testCompileOnly(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage)
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.

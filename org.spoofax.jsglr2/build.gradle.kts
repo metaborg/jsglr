@@ -8,13 +8,14 @@ plugins {
 fun compositeBuild(name: String) = "$group:$name:$version"
 val spoofax2Version: String by ext
 dependencies {
-    api(platform("org.metaborg:parent:$spoofax2Version"))
+    api(platform(libs.metaborg.platform))
 
-    api(compositeBuild("org.spoofax.terms"))
+    api(libs.spoofax.terms)
     api(compositeBuild("jsglr.shared"))
+    testImplementation(libs.junit)
     implementation("jakarta.annotation:jakarta.annotation-api")
     implementation(compositeBuild("sdf2table"))
-    testCompileOnly("junit:junit")
+    testCompileOnly(libs.junit4)
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
     api(compositeBuild("org.metaborg.parsetable"))
 }

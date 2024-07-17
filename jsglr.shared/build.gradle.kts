@@ -5,10 +5,8 @@ plugins {
     id("org.metaborg.convention.maven-publish")
 }
 
-fun compositeBuild(name: String) = "$group:$name:$version"
-val spoofax2Version: String by ext
 dependencies {
-    api(platform("org.metaborg:parent:$spoofax2Version"))
+    api(platform(libs.metaborg.platform))
 
-    api(compositeBuild("org.spoofax.terms"))
+    api(libs.spoofax.terms)
 }

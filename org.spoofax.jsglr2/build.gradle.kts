@@ -9,13 +9,13 @@ dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
     api(libs.spoofax.terms)
-    api(compositeBuild("jsglr.shared"))
+    api(libs.jsglr.shared)
     testImplementation(libs.junit)
-    implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation(compositeBuild("sdf2table"))
+    implementation(libs.jakarta.annotation)
+    implementation(libs.sdf2table)
     testCompileOnly(libs.junit4)
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
-    api(compositeBuild("org.metaborg.parsetable"))
+    testRuntimeOnly(libs.junit.vintage)
+    api(libs.parsetable)
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.

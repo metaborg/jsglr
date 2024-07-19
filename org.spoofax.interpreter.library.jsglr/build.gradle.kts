@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
     id("org.metaborg.convention.java")
     id("org.metaborg.convention.maven-publish")
+    id("org.metaborg.convention.junit")
 }
 
 dependencies {
@@ -12,7 +13,6 @@ dependencies {
     api(project(":org.spoofax.jsglr2"))
     api(project(":jsglr.shared"))
     api(libs.interpreter.core)
-    testImplementation(libs.junit)
     testCompileOnly(libs.junit4)
     testRuntimeOnly(libs.junit.vintage)
 }

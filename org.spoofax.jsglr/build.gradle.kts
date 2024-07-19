@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
     id("org.metaborg.convention.java")
     id("org.metaborg.convention.maven-publish")
+    id("org.metaborg.convention.junit")
 }
 
 dependencies {
@@ -14,7 +15,6 @@ dependencies {
     implementation(libs.metaborg.util)
     api(libs.parsetable)
     api(libs.jsglr.shared)
-    testImplementation(libs.junit)
 }
 
 sourceSets {

@@ -17,7 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.function.Executable;
 import org.metaborg.parsetable.ParseTableVariant;
-import org.metaborg.util.resource.ResourceUtils;
+import mb.util.vfs2.resource.ResourceUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import mb.jsglr.shared.IToken;

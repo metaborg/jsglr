@@ -1,7 +1,7 @@
 ---
 id: org.metaborg:test:0.1.0-SNAPSHOT
 name: test
-metaborgVersion: "2.5.20"
+metaborgVersion: 2.6.0-SNAPSHOT
 language:
   sdf:
     pretty-print: test

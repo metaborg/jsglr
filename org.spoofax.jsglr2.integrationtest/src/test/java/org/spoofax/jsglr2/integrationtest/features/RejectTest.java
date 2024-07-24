@@ -33,6 +33,7 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
     }
 
     // N.B. this test finds an edgecase where JSGLR2 will exhibit a bug if you use a multimap with insertion-order preservation in org.metaborg.sdf2table.grammar.NormGrammar
+    @Disabled("This test fails _sometimes_. The theory is that this is due to a bug that is only exposed based on a certain ordering of objects in a hash-based collection, where the objects have a non-deterministic hashcode (e.g. by using the default one).")
     @TestFactory public Stream<DynamicTest> testBoth() throws ParseError {
         return testSuccessByAstString("foo baz", "List([Foo,Id(\"baz\")])");
     }

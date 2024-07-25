@@ -16,6 +16,14 @@ dependencies {
     api(libs.jsglr.shared)
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+}
+
 sourceSets {
     main {
         java {

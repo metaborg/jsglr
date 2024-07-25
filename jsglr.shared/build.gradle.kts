@@ -9,3 +9,11 @@ dependencies {
 
     api(libs.spoofax.terms)
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+}

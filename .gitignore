@@ -1,7 +1,5 @@
-# Java
-*.class
-*.jar
-hs_err_pid*
+# macOS
+*.DS_Store
 
 # Gradle
 **/.gradle
@@ -9,7 +7,6 @@ hs_err_pid*
 
 # IntelliJ
 **/.idea
-*.iml
 **/out
 
 # Eclipse
@@ -19,8 +16,20 @@ hs_err_pid*
 **/.factorypath
 **/bin
 
-# Spoofax
-**/src-gen
-**/target
-
-.ammonite
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python-version
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+/site/
+build/
+*.egg-info/

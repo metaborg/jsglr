@@ -1,0 +1,50 @@
+---
+repoOwner: "metaborg"
+repoName: "jsglr"
+mainBranch: "master"
+mavenGroup: "org.metaborg.devenv"
+
+title: "JSGLR"
+description: |
+  JSGLR is a parse table interpreter.
+inceptionYear: "2016"
+
+libraries:
+  - group: "org.metaborg.devenv"
+    name: "org.spoofax.interpreter.library.jsglr"
+  - group: "org.metaborg.devenv"
+    name: "org.spoofax.jsglr"
+  - group: "org.metaborg.devenv"
+    name: "org.spoofax.jsglr2"
+  - group: "org.metaborg.devenv"
+    name: "jsglr.shared"
+
+developers:
+  - id: "jasperdenkers"
+    name: "Jasper Denkers"
+  - id: "mpsijm"
+    name: "Maarten Sijm"
+  - id: "karltk"
+    name: "Karl Trygve Kalleberg"
+  - id: "lennartcl"
+    name: "Lennart Kats"
+  - id: "maartje"
+    name: "Maartje de Jonge"
+  - id: "Gohla"
+    name: "Gabriel Konat"
+  - id: "udesou"
+    name: "Eduardo Souza"
+
+files:
+  githubWorkflows:
+    publishRelease: true
+    publishSnapshot: true
+  gradleRootProject:
+    createPublishTasks: true
+    rootProjectName: "jsglr-project"
+    includedProjects:
+      - name: ":org.spoofax.jsglr"
+      - name: ":org.spoofax.jsglr2"
+      - name: ":org.spoofax.interpreter.library.jsglr"
+      - name: ":jsglr.shared"
+

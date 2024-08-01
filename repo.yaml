@@ -7,9 +7,9 @@ mavenGroup: "org.metaborg.devenv"
 title: "JSGLR"
 description: |
   JSGLR is a parse table interpreter.
-inceptionYear: "2016"
+inceptionYear: "2005"
 
-libraries:
+spoofax3Libraries:
   - group: "org.metaborg.devenv"
     name: "org.spoofax.interpreter.library.jsglr"
   - group: "org.metaborg.devenv"
@@ -19,7 +19,19 @@ libraries:
   - group: "org.metaborg.devenv"
     name: "jsglr.shared"
 
-developers:
+spoofax2Libraries:
+  - group: "org.metaborg"
+    name: "make-permissive"
+  - group: "org.metaborg"
+    name: "org.spoofax.interpreter.library.jsglr"
+  - group: "org.metaborg"
+    name: "org.spoofax.jsglr"
+  - group: "org.metaborg"
+    name: "org.spoofax.jsglr2"
+  - group: "org.metaborg"
+    name: "org.spoofax.jsglr2.integration"
+
+contributors:
   - id: "jasperdenkers"
     name: "Jasper Denkers"
   - id: "mpsijm"
@@ -34,13 +46,21 @@ developers:
     name: "Gabriel Konat"
   - id: "udesou"
     name: "Eduardo Souza"
+  - id: "hendrikvanantwerpen"
+    name: "Hendrik van Antwerpen"
+  - id: "Virtlink"
+    name: "Daniel A. A. Pelsmaeker"
+
+developers:
+  - id: "Apanatshka"
+    name: "Jeff Smits"
 
 files:
   githubWorkflows:
     publishRelease: true
     publishSnapshot: true
   gradleRootProject:
-    createPublishTasks: true
+    generate: true
     rootProjectName: "jsglr-project"
     includedProjects:
       - name: ":org.spoofax.jsglr"

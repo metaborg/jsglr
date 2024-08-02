@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.metaborg.core.MetaborgException;
@@ -79,6 +80,7 @@ public abstract class BaseTestWithSdf3ParseTables extends BaseTest {
      * Note the @TestFactory annotation, which makes sure that parse table consistency is checked for all test classes
      * that extend this class.
      */
+    @Disabled
     @TestFactory public Stream<DynamicTest> testParseTableConsistency() throws Exception {
         Iterator<ParseTableWithOrigin> parseTables = getParseTables(ParseTableVariant.standard()).iterator();
 

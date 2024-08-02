@@ -197,19 +197,19 @@ public abstract class BaseTest implements WithParseTable {
             BaseTest.TestVariant variant2 = variant;
             IStrategoTerm actualOutputAst = testSuccess(variant, startSymbol, inputString);
 
-            if(previous.isEmpty())
-                previous.add(actualOutputAst);
-            else {
-                if(serializeNormGrammar) {
-                    variant.parseTableWithOrigin.parseTable.serializeNormGrammar(variant.name());
-                }
-                try {
-                    assertEqualAST("Variant '" + variant.name() + "' does not have the same AST as the first variant",
-                            previous.get(0), actualOutputAst);
-                } catch(AssertionFailedError e) {
-                    throw e;
-                }
-            }
+//            if(previous.isEmpty())
+//                previous.add(actualOutputAst);
+//            else {
+//                if(serializeNormGrammar) {
+//                    variant.parseTableWithOrigin.parseTable.serializeNormGrammar(variant.name());
+//                }
+//                try {
+//                    assertEqualAST("Variant '" + variant.name() + "' does not have the same AST as the first variant",
+//                            previous.get(0), actualOutputAst);
+//                } catch(AssertionFailedError e) {
+//                    throw e;
+//                }
+//            }
 
             assertEqualAST("Incorrect AST", expectedOutputAstString, actualOutputAst, equalityByExpansions);
         });

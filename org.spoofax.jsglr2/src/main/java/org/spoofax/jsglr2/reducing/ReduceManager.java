@@ -6,6 +6,7 @@ import java.util.List;
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.jsglr2.inputstack.IInputStack;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
@@ -141,8 +142,9 @@ public class ReduceManager
                 StackLink<ParseForest, StackNode> link = reducer.reducerExistingStackWithoutDirectLink(observing,
                     parseState, reduce, gotoStack, originStack, parseForests);
 
-                for(StackNode activeStackForLimitedReductions : parseState.activeStacks
-                    .forLimitedReductions(parseState.forActorStacks)) {
+                ArrayList<StackNode> stackNodes = Iterables2.toArrayList(parseState.activeStacks
+                        .forLimitedReductions(parseState.forActorStacks));
+                for(StackNode activeStackForLimitedReductions : stackNodes) {
                     for(IReduce reduceAction : activeStackForLimitedReductions.state()
                         .getApplicableReduceActions(parseState.inputStack, parseState.mode))
                         doLimitedReductions(observing, parseState, activeStackForLimitedReductions, reduceAction, link);

@@ -9,6 +9,7 @@ import org.metaborg.parsetable.characterclasses.ICharacterClass;
 import org.metaborg.parsetable.query.ActionsForCharacterDisjointSorted;
 import org.metaborg.parsetable.query.ActionsForRange;
 import org.metaborg.parsetable.query.ActionsPerCharacterClass;
+import org.metaborg.parsetable.states.IMutableState;
 import org.metaborg.parsetable.states.IState;
 import org.metaborg.parsetable.states.StateFactory;
 
@@ -29,8 +30,8 @@ public class MeasureStateFactory extends StateFactory {
     long actionsPerGroupMax = 0;
     long actionsPerDisjointSortedRangeMax = 0;
 
-    @Override public IState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClasses,
-        Set<Integer> recoveryStateIds) {
+    @Override public IMutableState from(int stateNumber, IGoto[] gotos, ActionsPerCharacterClass[] actionsPerCharacterClasses,
+                                        Set<Integer> recoveryStateIds) {
         statesCount++;
 
         gotosCount += gotos.length;

@@ -14,17 +14,11 @@ public class RejectTest extends BaseTestWithSdf3ParseTables {
         super("reject.sdf3");
     }
 
-    // This test only fails when running `./b build all`, not when running the tests separately.
-    @Disabled @TestFactory public Stream<DynamicTest> testReject() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testReject() throws ParseError {
         return testSuccessByAstString("foo", "List([Foo])");
     }
 
-    /**
-     * This test cannot pass until reject priorities have been implemented.
-     *
-     * @see org.spoofax.jsglr2.stack.collections.IForActorStacks
-     */
-    @Disabled @TestFactory public Stream<DynamicTest> testNestedReject() throws ParseError {
+    @TestFactory public Stream<DynamicTest> testNestedReject() throws ParseError {
         return testParseFailure("bar");
     }
 

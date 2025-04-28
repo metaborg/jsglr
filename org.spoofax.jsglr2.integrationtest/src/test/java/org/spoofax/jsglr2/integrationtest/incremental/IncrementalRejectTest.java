@@ -14,8 +14,7 @@ public class IncrementalRejectTest extends BaseTestWithSdf3ParseTables {
         super("reject.sdf3");
     }
 
-    // This test only fails when running `./b build all`, not when running the tests separately.
-    @Disabled @TestFactory public Stream<DynamicTest> incrementalReject() throws ParseError {
+    @TestFactory public Stream<DynamicTest> incrementalReject() throws ParseError {
         //@formatter:off
         return testIncrementalSuccessByExpansions(
             new String[] { "foo",         "for",                 "foo" },
@@ -24,7 +23,6 @@ public class IncrementalRejectTest extends BaseTestWithSdf3ParseTables {
         //@formatter:on
     }
 
-    // TODO maybe disable??
     @TestFactory public Stream<DynamicTest> incrementalRejectSplit() throws ParseError {
         //@formatter:off
         return testIncrementalSuccessByExpansions(
